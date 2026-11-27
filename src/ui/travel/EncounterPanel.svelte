@@ -100,8 +100,9 @@
     const on = (event.currentTarget as HTMLInputElement).checked;
     const options = app.game?.options;
     if (!options) return;
+    // The original's Options checkbox; "continue attacking fleeing ship" needs it.
     options.continuousAttack = on;
-    options.continuousAttackFleeing = on;
+    if (!on) options.continuousAttackFleeing = false;
     app.bump();
   }
 </script>

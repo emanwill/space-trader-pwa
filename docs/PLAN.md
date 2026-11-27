@@ -389,10 +389,34 @@ One SVG map replaces the short-range and galactic charts.
   Impossible, attacking police (confirm), death, retiring, the high score table, plunder,
   jettison, tribbles and continuous attack.
 
-**Phase 7. Remaining features**
+**Phase 7. Remaining features** ✅ done
 
-- New-commander flow polish, options, high scores, debug panel and cheats
-- The ship designer is deferred beyond this plan
+- Cheats (`src/engine/cheats.ts`): a port of `btnFind_Click`. The map's Find box takes the
+  original's words: "Cheetah" turns cheats on (and the game can no longer enter the high
+  scores, as before); then Bazaar, Cover, DeLorean, Diamond, Energize, Events, Fame, Go, Ice,
+  Indemnity, IOU, Iron, Juice, Knack, L'Engle, LifeBoat, Monster.com, PlanB, Posse, RapSheet,
+  Rarity, Scratch, Skin, Status, Swag, Test, Tool, Varmints and Yellow. Anything else is a system
+  to find, with FormFind's Track box. `find` returns what the UI must do next: Go (a direct warp
+  through `session.warpDirect`, with the PlanB saves), Monster.com or Test.
+- Debug panels, shown by those cheats and then from the menu while cheats are on:
+  - Monster.com (FormMonster): every mercenary with skills and whereabouts, the quests available
+    now and the shipyards, sortable by column as in the original, with system links
+    (`monsterMercenaries`, `monsterQuests`, `monsterShipyards` in `views.ts`).
+  - Test (FormTest): show any alert with up to three values and report the button chosen, or
+    the text of any special event.
+- Options (FormOptions): every option, grouped, with the original's dependencies (fleeing needs
+  continuous attack, dealing traders needs ignoring traders, showing the paper needs paying for
+  it). Edits a copy; Ok applies it. Load from / Save as defaults. From the title screen it edits
+  only the defaults, after OptionsNoGame. The encounter screen's toggle is the continuous-attack
+  option.
+- About (Form_About's credits plus the port's licence and source link), from the title screen
+  and the menu.
+- New commander: says why Start is disabled (no name, or points left). High scores: the
+  game-over page shows the table with the new entry highlighted.
+- Toasts moved to the top of the screen, so they don't cover sheet buttons or the trade footer.
+- Noted, not changed: shipyard placement can put two shipyards on one system (the later wins), so
+  a galaxy may have fewer than five. It only matters to the deferred ship designer.
+- The ship designer is deferred beyond this plan.
 
 **Phase 8. PWA polish**
 

@@ -109,6 +109,13 @@
         Cancel
       </button>
       <span class="spacer"></span>
+      {#if !ready}
+        <span class="dim hint">
+          {name.trim() === ''
+            ? 'Enter a name.'
+            : `Spend ${points} more skill point${points === 1 ? '' : 's'}.`}
+        </span>
+      {/if}
       <button class="primary" type="submit" disabled={!ready || app.busy}>Start game</button>
     </div>
   </form>

@@ -16,7 +16,8 @@
   .toasts {
     position: fixed;
     left: 50%;
-    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0) + 0.75rem);
+    /* At the top, where they don't cover sheet buttons or the trade footer. */
+    top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 0.5rem);
     z-index: 150;
     display: flex;
     flex-direction: column;
@@ -45,7 +46,7 @@
   }
   @keyframes pop {
     from {
-      transform: translateY(0.5rem);
+      transform: translateY(-0.5rem);
       opacity: 0;
     }
   }

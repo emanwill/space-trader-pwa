@@ -12,6 +12,8 @@ import type { Game } from '../engine/game';
 
 export type Screen = 'loading' | 'title' | 'new-commander' | 'game';
 export type Tab = 'trade' | 'map' | 'station' | 'shipyard' | 'captain';
+/** Sheets that several places can open; App renders them. */
+export type Sheet = 'options' | 'about' | 'monster' | 'test';
 
 class AppState {
   /** Bumped after every engine call; see the file comment. */
@@ -20,6 +22,7 @@ class AppState {
   busy = $state(false);
   screen = $state<Screen>('loading');
   tab = $state<Tab>('trade');
+  sheet = $state<Sheet | null>(null);
   /** A fatal startup error, shown instead of the app. */
   error = $state<string | null>(null);
 

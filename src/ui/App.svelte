@@ -2,7 +2,11 @@
   import { onMount } from 'svelte';
   import { GameSession } from '../app/session';
   import { IndexedDbStore, MemoryStore, requestPersistentStorage } from '../app/storage';
+  import AboutSheet from './components/AboutSheet.svelte';
   import GameOverScreen from './components/GameOverScreen.svelte';
+  import MonsterSheet from './components/MonsterSheet.svelte';
+  import OptionsSheet from './components/OptionsSheet.svelte';
+  import TestPanel from './components/TestPanel.svelte';
   import Toasts from './components/Toasts.svelte';
   import DialogHost from './dialogs/DialogHost.svelte';
   import GameShell from './screens/GameShell.svelte';
@@ -53,6 +57,15 @@
   <GameShell />
 {/if}
 
+{#if app.sheet === 'options'}
+  <OptionsSheet onclose={() => (app.sheet = null)} />
+{:else if app.sheet === 'about'}
+  <AboutSheet onclose={() => (app.sheet = null)} />
+{:else if app.sheet === 'monster' && app.game}
+  <MonsterSheet onclose={() => (app.sheet = null)} />
+{:else if app.sheet === 'test'}
+  <TestPanel onclose={() => (app.sheet = null)} />
+{/if}
 {#if travel.shown}
   <TravelScreen />
 {/if}

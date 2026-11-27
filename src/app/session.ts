@@ -352,6 +352,15 @@ export class GameSession {
     if (game.autoSave) await this.saveNamed(SaveArrival, false);
   }
 
+  /** The "Go" cheat: Game.WarpDirect to the selected system, with the same saves as a warp. */
+  async warpDirect(): Promise<void> {
+    await this.act(async (game) => {
+      await this.departureSave(game);
+      await game.warpDirect();
+      await this.arrivalSave(game);
+    });
+  }
+
   /** btnWarp_Click. */
   async warp(): Promise<void> {
     await this.act(async (game) => {

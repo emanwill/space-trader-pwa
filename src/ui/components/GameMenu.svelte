@@ -46,6 +46,12 @@
       <button onclick={then(startNewGame)}>New game…</button>
       <button onclick={() => (sheet = 'scores')}>High scores</button>
       <button onclick={() => (sheet = 'messages')}>Messages</button>
+      <button onclick={then(() => (app.sheet = 'options'))}>Options…</button>
+      <button onclick={then(() => (app.sheet = 'about'))}>About</button>
+      {#if app.game?.cheatEnabled}
+        <button onclick={then(() => (app.sheet = 'monster'))}>Monster.com</button>
+        <button onclick={then(() => (app.sheet = 'test'))}>Test panel</button>
+      {/if}
       <button class="danger" onclick={then(retire)}>Retire…</button>
     </nav>
     {#snippet actions()}

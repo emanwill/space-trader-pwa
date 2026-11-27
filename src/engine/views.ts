@@ -318,6 +318,114 @@ export function tribblePictures(ship: Ship): number {
 
 // #endregion
 
+// #region Monster.com (Form_Monster.cs)
+
+/** A column FormMonster can sort the mercenaries by: Id, Name, Pilot, Fighter, Trader, Engineer, System. */
+export type MercenarySort = 'I' | 'N' | 'P' | 'F' | 'T' | 'E' | 'S';
+
+export interface MonsterMercenary {
+  id: number;
+  name: string;
+  pilot: number;
+  fighter: number;
+  trader: number;
+  engineer: number;
+  /** Where they are (CurrentSystemDisplay). */
+  where: string;
+  /** The system to link to: null if unknown or aboard your ship. */
+  systemId: number | null;
+}
+
+export interface MonsterSystemEntry {
+  systemId: number;
+  system: string;
+  /** The quest title or shipyard name. */
+  description: string;
+}
+
+/** FormMonster: the mercenaries (not the special crew), sorted as Compare("M", sortBy). */
+export function monsterMercenaries(game: Game, sortBy: MercenarySort = 'N'): MonsterMercenary[] {
+  const ship = game.commander.ship;
+  const rows = game.mercenaries
+    .filter((m): m is NonNullable<typeof m> => m !== null)
+    .filter((m) => !Consts.SpecialCrewMemberIds.includes(m.id))
+    .map((m) => {
+      const system = m.currentSystem;
+      const aboard = ship.hasCrew(m.id);
+      return {
+        id: m.id,
+        name: m.name,
+        pilot: m.pilot,
+        fighter: m.fighter,
+        trader: m.trader,
+        engineer: m.engineer,
+        where:
+          system === null
+            ? Strings.Unknown
+            : aboard
+              ? stringVars(Strings.MercOnBoard, system.name)
+              : system.name,
+        systemId: system !== null && !aboard ? system.id : null,
+      };
+    });
+
+  const key = (m: MonsterMercenary): number | string => {
+    switch (sortBy) {
+      case 'I':
+        return m.id;
+      case 'N':
+        return m.name;
+      case 'P':
+        return m.pilot;
+      case 'F':
+        return m.fighter;
+      case 'T':
+        return m.trader;
+      case 'E':
+        return m.engineer;
+      case 'S':
+        return m.where;
+    }
+  };
+  return rows.sort((a, b) => {
+    const ka = key(a);
+    const kb = key(b);
+    const compared = typeof ka === 'string' ? ka.localeCompare(kb as string) : ka - (kb as number);
+    // Secondary sort by name.
+    return compared !== 0 || sortBy === 'N' ? compared : a.name.localeCompare(b.name);
+  });
+}
+
+function sortSystems(rows: MonsterSystemEntry[], sortBy: 'S' | 'D'): MonsterSystemEntry[] {
+  return rows.sort(
+    (a, b) =>
+      (sortBy === 'D' ? a.description.localeCompare(b.description) : 0) ||
+      a.system.localeCompare(b.system),
+  );
+}
+
+/** FormMonster: systems whose special event is available now, by System or Description. */
+export function monsterQuests(game: Game, sortBy: 'S' | 'D' = 'S'): MonsterSystemEntry[] {
+  return sortSystems(
+    game.universe
+      .filter((s) => s.showSpecialButton())
+      .map((s) => ({ systemId: s.id, system: s.name, description: s.specialEvent!.title })),
+    sortBy,
+  );
+}
+
+/** FormMonster: systems with a shipyard, by System or Description. */
+export function monsterShipyards(game: Game, sortBy: 'S' | 'D' = 'S'): MonsterSystemEntry[] {
+  return sortSystems(
+    game.universe
+      .filter((s) => s.shipyard !== null)
+      .map((s) => ({ systemId: s.id, system: s.name, description: s.shipyard!.name })),
+    sortBy,
+  );
+}
+
+// #endregion
+
 // #region Commander (Form_ViewCommander.cs)
 
 /** FormViewCommander's bounty line: a bounty on a crook, or angry kingpins for a hero. */

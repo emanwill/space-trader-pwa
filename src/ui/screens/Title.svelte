@@ -17,6 +17,10 @@
     <button disabled={app.busy} onclick={() => (sheet = 'saves')}>Load game</button>
     <button disabled={app.busy} onclick={importGame}>Import save file</button>
     <button disabled={app.busy} onclick={() => (sheet = 'scores')}>High scores</button>
+    <div class="row pair">
+      <button disabled={app.busy} onclick={() => (app.sheet = 'options')}>Options</button>
+      <button disabled={app.busy} onclick={() => (app.sheet = 'about')}>About</button>
+    </div>
   </nav>
   <p class="faint credit">
     A port of Space Trader for Windows 2.00 by Jay French, after the Palm game by Pieter Spronck.
@@ -61,6 +65,9 @@
     flex-direction: column;
     gap: 0.5rem;
     width: min(18rem, 100%);
+  }
+  .pair button {
+    flex: 1;
   }
   .credit {
     max-width: 26rem;

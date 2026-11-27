@@ -22,6 +22,7 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
     game-logic helpers from `Functions.cs` (`distance`, `wormholeExists`, ...).
   - `high-scores.ts` — the high score table and the game-over flow (`GameEnd`), through a
     `HighScoreStore` interface.
+  - `cheats.ts` — the Find box and its cheat codes (`btnFind_Click`).
   - `trade.ts` — read-only helpers for the Trade screen (market rows, buy/sell limits, trip costs,
     `warpBlocker`); `views.ts` — the text of the original's quest, ship and commander screens.
 - `src/app/` — between engine and UI, no Svelte: `storage.ts` (`KeyValueStore`: IndexedDB, plus
@@ -40,6 +41,8 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
   - `alert-kinds.ts` — how each alert is shown (confirm, story, notice, game-over). New alerts
     default to story (or confirm, with several buttons); add a type to the notice list only if
     the player loses nothing by missing it.
+  - `app.sheet` opens the shared sheets (options, about, Monster.com, test panel) rendered by
+    `App.svelte`.
   - `travel.svelte.ts` — the trip in progress and its log; `travel/` holds the travel view and
     the encounter panel.
   - `screens/` (title, new commander, shell, the five tabs), `map/`, `dialogs/`, `components/`
