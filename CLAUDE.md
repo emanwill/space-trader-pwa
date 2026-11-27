@@ -8,6 +8,10 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
 
 - `reference/` — original C# source and BMP assets. Read-only; never edit.
 - `src/engine/` — ported game logic. Plain TypeScript: no DOM, no Svelte, no browser APIs.
+  - `data/` — static data: `consts.ts` (hand-ported) and `enums.ts`, `strings.ts`, `alerts.ts`
+    (**generated** by `scripts/convert-data.mjs` via `npm run data`; never edit by hand).
+  - `model/` — ported classes (one file per C# class, kebab-case names).
+  - `game-context.ts` — `currentGame()`, the replacement for the static `Game.CurrentGame`.
 - `src/ui/` — Svelte 5 components and the `GameUI` implementation.
 - `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`).
 - `public/images/`, `public/icons/` — PNGs generated from `reference/` by `scripts/convert-assets.mjs`.
@@ -20,6 +24,7 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
 - `npm test` — Vitest
 - `npm run build` / `npm run preview` — production build, served at http://localhost:4173/space-trader-pwa/
 - `npm run format` — Prettier
+- `npm run data` — regenerate `src/engine/data/{enums,strings,alerts}.ts` from `reference/`
 
 CI (`.github/workflows/deploy.yml`) runs format:check, check, test and build on every push and PR,
 and deploys `main` to GitHub Pages.
@@ -36,8 +41,17 @@ and deploys `main` to GitHub Pages.
   calls on the injected `GameUI` interface. Callers become `async`. Do not remove or reorder alerts
   while porting; the UI decides how each alert type is shown.
 - **Randomness:** go through the engine's injectable RNG, never `Math.random()` directly.
-- Keep names and structure close to the C# (method names in camelCase) so ported code can be
-  compared line by line. Note any intentional behaviour change with a `// PORT:` comment.
+- Keep names and structure close to the C# so ported code can be compared line by line. Note any
+  intentional behaviour change with a `// PORT:` comment.
+  - Members and methods are camelCase (`Ship.CargoBays` → `ship.cargoBays`).
+  - The static tables keep their original PascalCase names: `Consts.MaxRange`, `Consts.ShipSpecs`,
+    `Strings.TradeItemNames`, `SpecialEvent.StatusJarekDone`.
+- **`Game.CurrentGame`** → `currentGame()` from `src/engine/game-context.ts`. Its `GameContext`
+  interface lists only what ported code uses so far; widen it as needed until the real `Game` exists.
+- **Circular imports:** `Consts` tables are lazy getters because they construct model classes that
+  read `Consts`. Never read `Consts` tables (or construct model objects) at module top level.
+- **Save data:** classes keep the original `Serialize()` keys (`_price`, `_type`, ...) in a plain
+  `Hash` object; load with a static `fromHash` (or a protected `loadFromHash` for base classes).
 
 ## Conventions
 

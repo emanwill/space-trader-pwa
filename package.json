@@ -19,11 +19,13 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "assets": "node scripts/convert-assets.mjs"
+    "assets": "node scripts/convert-assets.mjs",
+    "data": "node scripts/convert-data.mjs && prettier --write src/engine/data/enums.ts src/engine/data/strings.ts src/engine/data/alerts.ts"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tsconfig/svelte": "^5.0.9",
+    "@types/node": "^24.19.4",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.2",
