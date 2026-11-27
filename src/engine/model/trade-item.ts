@@ -11,7 +11,7 @@ import { Strings } from '../data/strings';
 import { idiv } from '../math';
 import type { PoliticalSystem } from './political-system';
 
-/** The parts of a StarSystem that StandardPrice reads. StarSystem (Phase 2) satisfies this. */
+/** The parts of a StarSystem that StandardPrice reads. StarSystem satisfies this; tests can pass a plain object. */
 export interface PricedSystem {
   itemUsed(item: TradeItem): boolean;
   readonly techLevel: TechLevel;

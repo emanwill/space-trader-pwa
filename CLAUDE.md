@@ -12,8 +12,15 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
     (**generated** by `scripts/convert-data.mjs` via `npm run data`; never edit by hand).
   - `model/` — ported classes (one file per C# class, kebab-case names).
   - `game-context.ts` — `currentGame()`, the replacement for the static `Game.CurrentGame`.
+  - `game-ui.ts` — the `GameUI` interface: everything the original did with dialogs.
+  - `rng.ts` — random numbers (`getRandom`, the seeded `getRandom2`); `functions.ts` — the other
+    game-logic helpers from `Functions.cs` (`distance`, `wormholeExists`, ...).
 - `src/ui/` — Svelte 5 components and the `GameUI` implementation.
 - `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`).
+  - `tests/engine/fake-game.ts` — `useFakeGame()` installs a `FakeGame` (a `GameContext` with a
+    real commander, ship, systems and mercenaries) and a seeded RNG.
+  - `tests/engine/scripted-ui.ts` — `ScriptedUI`, a `GameUI` that records alerts and answers
+    questions from a script.
 - `public/images/`, `public/icons/` — PNGs generated from `reference/` by `scripts/convert-assets.mjs`.
   Committed; regenerate with `npm run assets` (needs ImageMagick) only when changing the script.
 
@@ -40,16 +47,22 @@ and deploys `main` to GitHub Pages.
 - **Dialogs in logic:** `FormAlert.Alert(...)`, `ShowDialog(...)` and the like become `await this.ui.…`
   calls on the injected `GameUI` interface. Callers become `async`. Do not remove or reorder alerts
   while porting; the UI decides how each alert type is shown.
-- **Randomness:** go through the engine's injectable RNG, never `Math.random()` directly.
+- **Randomness:** `Functions.GetRandom` → `getRandom` from `src/engine/rng.ts`; never call
+  `Math.random()` directly. Tests set a source with `setRandomSource(seededRandomSource(n))`.
 - Keep names and structure close to the C# so ported code can be compared line by line. Note any
   intentional behaviour change with a `// PORT:` comment.
   - Members and methods are camelCase (`Ship.CargoBays` → `ship.cargoBays`).
   - The static tables keep their original PascalCase names: `Consts.MaxRange`, `Consts.ShipSpecs`,
     `Strings.TradeItemNames`, `SpecialEvent.StatusJarekDone`.
-- **`Game.CurrentGame`** → `currentGame()` from `src/engine/game-context.ts`. Its `GameContext`
+- **`Game.CurrentGame`** → `currentGame()` from `src/engine/game-context.ts`, and
+  `Game.CurrentGame.Commander` → `currentCommander()` (throws if unset). Its `GameContext`
   interface lists only what ported code uses so far; widen it as needed until the real `Game` exists.
 - **Circular imports:** `Consts` tables are lazy getters because they construct model classes that
   read `Consts`. Never read `Consts` tables (or construct model objects) at module top level.
+- **Overloads:** C# overloads that TS can't tell apart (constructors taking different enums or a
+  `Hashtable`, `RemoveEquipment(type, slot)` vs `(type, object)`) become static factories
+  (`Ship.forOpponent`, `X.fromHash`) or get a distinct name, with a `// PORT:` note.
+- **Dialog owners:** a C# `IWin32Window owner` parameter becomes a `ui: GameUI` parameter.
 - **Save data:** classes keep the original `Serialize()` keys (`_price`, `_type`, ...) in a plain
   `Hash` object; load with a static `fromHash` (or a protected `loadFromHash` for base classes).
 

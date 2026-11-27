@@ -77,7 +77,7 @@ Alternative considered: rewriting the logic as a pure reducer or state machine (
 - **Integer division.** C# `int / int` truncates. Every such division needs `Math.trunc` (or a `div()` helper). This is the most likely source of silent bugs.
 - **`Math.Round`.** .NET rounds half to even by default. JS rounds half up. Port it as a `roundHalfEven()` helper.
 - **`(int)` casts** truncate toward zero, so use `Math.trunc`, not `Math.floor`.
-- **`Rand()` / `GetRandom2`** (seeded RNG used for news) does 64-bit `long` arithmetic. Use BigInt, or confirm that values stay within 2^53.
+- **`Rand()` / `GetRandom2`** (seeded RNG used for news) does 64-bit `long` arithmetic. Its values stay below 2^47, so plain numbers work (confirmed in Phase 2).
 - **`System.Random`** for gameplay becomes an injectable seedable PRNG, which makes tests deterministic.
 - **Enum arithmetic** (`(int)Difficulty + 1`, `(ShipType)i`) maps to numeric TS enums.
 - **Static singletons** (`Game.CurrentGame`, `Consts`, and `Strings.CrewMemberNames[Commander]` being mutated at game creation) should become a module-level current game for now and an explicit instance later if needed.
@@ -93,7 +93,7 @@ src/
     data/     # Consts, Strings, enums, ship/weapon/system tables
     model/    # Ship, Commander, StarSystem, CrewMember, equipment…
     game.ts   # Game class (split into modules: travel, encounter, market, quests, news)
-    rng.ts, serialize.ts, format.ts
+    rng.ts, functions.ts, serialization.ts, format.ts, game-ui.ts, game-context.ts
   ui/         # Framework components, GameUI implementation
   pwa/        # Manifest, service worker, icons
 assets/       # Converted PNGs (generated from reference/ by a script)
@@ -214,10 +214,28 @@ One SVG map replaces the short-range and galactic charts.
   `Game.LitterWarning = true` inside the UI. The engine must set it itself (see the note in
   `alerts.ts`).
 
-**Phase 2. Engine models**
+**Phase 2. Engine models** ✅ done
 
 - Ship, Commander, CrewMember, StarSystem classes, plus serialization (Equipment was done in Phase 1)
 - Unit tests for derived values: trade-in price, free bays, skills, worth
+- Also ported: the game-logic helpers from `Functions.cs` (`functions.ts`) and its random-number
+  functions (`rng.ts`). Gameplay randomness uses an injectable source. The news generator's seeded
+  `Rand()` is ported exactly; its values stay below 2^47, so plain numbers suffice (no BigInt).
+- `GameUI` exists with `alert()` only. `Commander.TradeShip` is the first async port: its WinForms
+  `owner` parameter became a `ui` parameter.
+- `GameContext` now lists every `Game` member the models read (quest statuses, prices, opponent,
+  wormholes, ...). Tests use a `FakeGame` holding real model objects, and a `ScriptedUI` that
+  records alerts and answers questions from a script (`tests/engine/`). Phase 3's harness can
+  build on both.
+- Behaviour fixes, each marked `// PORT:`:
+  - Loading a save left a stale copy of the commander in the ship's first crew slot, so skill
+    changes after loading (Skill event, tonic) didn't reach the ship. The loaded commander now
+    takes that slot.
+  - `Ship.StealableCargo` threw when hidden cargo bays outnumbered the units of cargo (a pirate
+    raid on a nearly empty ship with hidden bays). It now returns an empty list.
+- C# overloads that are ambiguous in TS got their own names: `Ship.forOpponent(oppType)` and
+  `Ship.fromHash(hash)` for the constructors, `removeEquipmentBySubType` for
+  `RemoveEquipment(type, object)`.
 
 **Phase 3. Game engine**
 

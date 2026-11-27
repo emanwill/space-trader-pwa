@@ -68,7 +68,7 @@ export abstract class Equipment {
     const cmdr = currentGame().commander;
     let price = 0;
 
-    if (cmdr !== null && cmdr.currentSystem.techLevel >= this.minimumTechLevel)
+    if (cmdr !== null && cmdr.currentSystem!.techLevel >= this.minimumTechLevel)
       price = idiv(this._price * (100 - cmdr.ship.trader), 100);
 
     return price;

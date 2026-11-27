@@ -112,7 +112,7 @@ describe('Equipment', () => {
   const pulse = Consts.Weapons[WeaponType.PulseLaser]!; // 2000 cr., Industrial
 
   it('discounts the price by the trader skill', () => {
-    useFakeGame({ techLevel: TechLevel.HiTech, trader: 7 });
+    useFakeGame({ techLevel: TechLevel.HiTech, skills: [5, 5, 7, 5] });
     expect(pulse.price).toBe(1860); // 2000 * 93 / 100
   });
 
@@ -258,8 +258,8 @@ describe('Shipyard', () => {
     expect(corellian.adjustedPrice).toBe(91125); // * 90 / 100
     expect(corellian.adjustedDesignFee).toBe(18000); // 20000 * 90 / 100
 
-    useFakeGame({ shipWorth: 10000 });
-    expect(corellian.totalCost).toBe(91125 + 0 + 18000 - 10000);
+    const worth = useFakeGame().cmdr.ship.worth(false);
+    expect(corellian.totalCost).toBe(91125 + 0 + 18000 - worth);
   });
 
   it('offers sizes within two of its specialty', () => {
@@ -280,14 +280,10 @@ describe('Shipyard', () => {
 describe('SpecialEvent', () => {
   it('finds its location in the universe', () => {
     const lottery = Consts.SpecialEvents[SpecialEventType.Lottery]!;
-    const universe = [
-      { specialEventType: SpecialEventType.NA },
-      { specialEventType: SpecialEventType.Lottery },
-    ];
-    useFakeGame({ universe });
-    expect(lottery.location).toBe(universe[1]);
-    useFakeGame({ universe: [] });
+    const game = useFakeGame();
     expect(lottery.location).toBeNull();
+    game.universe[1]!.specialEventType = SpecialEventType.Lottery;
+    expect(lottery.location).toBe(game.universe[1]);
   });
 
   it('has a title and text', () => {
