@@ -24,15 +24,16 @@
   });
   const name = $derived(Consts.TradeItems[request.tradeItem]!.name);
   const clamped = $derived(Math.max(0, Math.min(request.max, Math.trunc(amount || 0))));
+  const limit = $derived(
+    request.unitPrice !== 0
+      ? `Up to ${request.max} at ${formatMoney(Math.abs(request.unitPrice))} each.`
+      : `Up to ${request.max}.`,
+  );
   const total = $derived(clamped * Math.abs(request.unitPrice));
 </script>
 
 <Modal title="{verb} {name}" {covered}>
-  <p class="dim">
-    Up to {request.max}
-    {#if request.unitPrice !== 0}
-      at {formatMoney(Math.abs(request.unitPrice))} each{/if}.
-  </p>
+  <p class="dim">{limit}</p>
   <div class="row">
     <input
       class="num qty"

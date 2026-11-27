@@ -6,11 +6,13 @@
     /** Hidden behind another dialog. */
     covered?: boolean;
     wide?: boolean;
+    /** A story card: an accent edge. */
+    accent?: boolean;
     children: Snippet;
     actions?: Snippet;
   }
 
-  let { title, covered = false, wide = false, children, actions }: Props = $props();
+  let { title, covered = false, wide = false, accent = false, children, actions }: Props = $props();
   const titleId = `dialog-title-${Math.random().toString(36).slice(2)}`;
 </script>
 
@@ -18,6 +20,7 @@
   <div
     class="modal"
     class:wide
+    class:accent
     role="dialog"
     aria-modal="true"
     aria-labelledby={title ? titleId : undefined}
@@ -65,6 +68,9 @@
     background: var(--surface);
     box-shadow: 0 -8px 32px rgb(0 0 0 / 0.5);
     animation: rise 0.16s ease-out;
+  }
+  .modal.accent {
+    border-top: 3px solid var(--accent);
   }
   .modal.wide {
     max-width: 40rem;

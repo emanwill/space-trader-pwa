@@ -6,7 +6,7 @@
   let { dialog, covered }: { dialog: AlertDialog; covered: boolean } = $props();
 </script>
 
-<Modal title={dialog.title} {covered}>
+<Modal title={dialog.title} {covered} accent={dialog.alertKind === 'story'}>
   {#if dialog.image !== null}
     <img class="pixel art" src={alertImage(dialog.image)} width="320" height="320" alt="" />
   {/if}

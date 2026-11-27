@@ -361,11 +361,17 @@ export class GameSession {
     });
   }
 
-  /** btnJump_Click (services.jump). Returns true if the jump happened. */
-  async jump(): Promise<boolean> {
+  /**
+   * btnJump_Click (services.jump). Returns true if the jump happened.
+   * `onDeparture` runs once the player has confirmed, just before the jump.
+   */
+  async jump(onDeparture?: () => void): Promise<boolean> {
     return (
       (await this.act(async (game) => {
-        const jumped = await services.jump(game, () => this.departureSave(game));
+        const jumped = await services.jump(game, async () => {
+          await this.departureSave(game);
+          onDeparture?.();
+        });
         if (jumped) await this.arrivalSave(game);
         return jumped;
       })) ?? true

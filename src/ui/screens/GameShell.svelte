@@ -14,7 +14,7 @@
     { id: 'map', label: 'Map', icon: '✦' },
     { id: 'station', label: 'Station', icon: '⌂' },
     { id: 'shipyard', label: 'Shipyard', icon: '⚙' },
-    { id: 'captain', label: 'Captain', icon: '☰' },
+    { id: 'captain', label: 'Captain', icon: '✪' },
   ];
 
   let menuOpen = $state(false);

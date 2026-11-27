@@ -36,8 +36,14 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
     reference, or they won't update.
   - `web-ui.svelte.ts` — `ui`, the browser `GameUI` (a dialog stack rendered by
     `dialogs/DialogHost.svelte`), plus `ui.message` and `ui.prompt` for the UI's own dialogs.
-  - `trade-plan.svelte.ts` — the Trade screen's pending order and the Trade/Warp actions.
-  - `screens/` (title, new commander, shell, the five tabs), `map/`, `dialogs/`, `components/`.
+  - `trade-plan.svelte.ts` — the Trade screen's pending order and the Trade/Warp/Jump actions.
+  - `alert-kinds.ts` — how each alert is shown (confirm, story, notice, game-over). New alerts
+    default to story (or confirm, with several buttons); add a type to the notice list only if
+    the player loses nothing by missing it.
+  - `travel.svelte.ts` — the trip in progress and its log; `travel/` holds the travel view and
+    the encounter panel.
+  - `screens/` (title, new commander, shell, the five tabs), `map/`, `dialogs/`, `components/`
+    (including the game-over page, toasts and `ShipPicture`).
 - `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`, `tests/app/`).
   - `tests/engine/fake-game.ts` — `useFakeGame()` installs a `FakeGame` (a `GameContext` with a
     real commander, ship, systems and mercenaries) and a seeded RNG.

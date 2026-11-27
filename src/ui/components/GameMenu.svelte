@@ -5,10 +5,11 @@
   import Modal from '../dialogs/Modal.svelte';
   import { app } from '../state.svelte';
   import HighScoresSheet from './HighScoresSheet.svelte';
+  import MessagesSheet from './MessagesSheet.svelte';
   import SavesSheet from './SavesSheet.svelte';
 
   let { onclose }: { onclose: () => void } = $props();
-  let sheet = $state<'saves' | 'scores' | null>(null);
+  let sheet = $state<'saves' | 'scores' | 'messages' | null>(null);
 
   function then(action: () => unknown): () => Promise<void> {
     return async () => {
@@ -27,6 +28,8 @@
   />
 {:else if sheet === 'scores'}
   <HighScoresSheet onclose={() => (sheet = null)} />
+{:else if sheet === 'messages'}
+  <MessagesSheet onclose={() => (sheet = null)} />
 {:else}
   <Modal title="Game">
     <p class="dim">
@@ -42,6 +45,7 @@
       <button onclick={then(importGame)}>Import save file…</button>
       <button onclick={then(startNewGame)}>New game…</button>
       <button onclick={() => (sheet = 'scores')}>High scores</button>
+      <button onclick={() => (sheet = 'messages')}>Messages</button>
       <button class="danger" onclick={then(retire)}>Retire…</button>
     </nav>
     {#snippet actions()}

@@ -39,7 +39,7 @@
     <span class="num">{view?.bays}</span>
   </p>
   <ul class="list">
-    {#each view?.rows ?? [] as row (row.i)}
+    {#each (view?.rows ?? []).filter((r) => r.qty > 0) as row (row.i)}
       <li class:empty={row.qty === 0}>
         <span class="name">{row.name}</span>
         <span class="num">{row.qty}</span>
@@ -50,6 +50,8 @@
           All
         </button>
       </li>
+    {:else}
+      <li class="none dim">{plunder ? 'Their hold is empty.' : 'Your hold is empty.'}</li>
     {/each}
   </ul>
   {#snippet actions()}
@@ -74,6 +76,9 @@
     grid-template-columns: 1fr 3rem auto auto;
     align-items: center;
     gap: 0.5rem;
+  }
+  li.none {
+    display: block;
   }
   li.empty .name,
   li.empty .num {

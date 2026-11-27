@@ -16,6 +16,8 @@ import {
   type WarpBlocker,
 } from '../engine/trade';
 import { app } from './state.svelte';
+import { travel } from './travel.svelte';
+import { ui } from './web-ui.svelte';
 
 class TradePlan {
   order = $state<Record<number, number>>({});
@@ -178,11 +180,34 @@ export async function warp(): Promise<void> {
     const session = app.session!;
     if (!empty) await session.act((g) => applyOrder(g, rows));
     plan.clear();
-    if (session.game) await session.warp();
+    const g = session.game;
+    if (!g) return;
+    travel.start(g.commander.currentSystem!.name, g.warpSystem?.name ?? '');
+    try {
+      await session.warp();
+    } finally {
+      await endTrip();
+    }
   });
 }
 
 /** The Jump button (Portable Singularity). */
 export async function jump(): Promise<void> {
-  await app.task(() => app.session!.jump());
+  await app.task(async () => {
+    const session = app.session!;
+    const g = session.game!;
+    try {
+      await session.jump(() =>
+        travel.start(g.commander.currentSystem!.name, g.warpSystem?.name ?? ''),
+      );
+    } finally {
+      if (travel.active) await endTrip();
+    }
+  });
+}
+
+/** Closes the travel view; notices from a trip that never showed it become toasts. */
+async function endTrip(): Promise<void> {
+  const unseen = await travel.finish(!app.session?.game);
+  for (const entry of unseen) if (entry.kind === 'notice') ui.toast(entry.title, entry.text);
 }

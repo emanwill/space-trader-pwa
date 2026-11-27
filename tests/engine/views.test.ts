@@ -10,7 +10,9 @@ import {
   linkSystemNames,
   questStrings,
   shipEquipment,
+  shipPictureStrips,
   specialCargo,
+  tribblePictures,
 } from '../../src/engine/views';
 import { newGame, useGameCleanup } from './game-helpers';
 
@@ -123,5 +125,43 @@ describe('ship info', () => {
     expect(commanderBounty(game)).toEqual({ label: 'Bounty offered', value: '20,000 cr.' });
     game.commander.policeRecordScore = 25;
     expect(commanderBounty(game)).toEqual({ label: 'Angry kingpins', value: '5' });
+  });
+});
+
+describe('encounter pictures', () => {
+  it('draws an undamaged, unshielded ship plainly', () => {
+    const { game } = newGame();
+    const ship = game.commander.ship; // A Gnat: x 18, width 27, no shields.
+    expect(shipPictureStrips(ship)).toEqual([{ picture: 'normal', from: 18, to: 47 }]);
+  });
+
+  it('damages from the left and shields from the right', () => {
+    const { game } = newGame();
+    roomyShip(game);
+    const ship = game.commander.ship; // A Wasp, which has shield slots.
+    ship.hull = Math.trunc(ship.hullStrength / 2);
+    ship.addEquipment(Consts.Shields[0]!);
+    const strips = shipPictureStrips(ship);
+    // Full shields cover the whole ship, so the damaged part shows shielded.
+    expect(strips.map((s) => s.picture)).toEqual(['shields-damaged', 'shields']);
+    expect(strips[0]!.from).toBeLessThan(strips[0]!.to);
+
+    ship.shields[0]!.charge = 0;
+    expect(shipPictureStrips(ship).map((s) => s.picture)).toEqual(['damaged', 'normal']);
+    // The strips are contiguous.
+    const s2 = shipPictureStrips(ship);
+    expect(s2[0]!.to).toBe(s2[1]!.from);
+  });
+
+  it('shows more tribbles as they multiply', () => {
+    const { game } = newGame();
+    const ship = game.commander.ship;
+    expect(tribblePictures(ship)).toBe(0);
+    ship.tribbles = 1;
+    expect(tribblePictures(ship)).toBe(0);
+    ship.tribbles = 1000;
+    expect(tribblePictures(ship)).toBe(Math.trunc(Math.sqrt(1000 / Math.ceil(100000 / 1369))));
+    ship.tribbles = Consts.MaxTribbles;
+    expect(tribblePictures(ship)).toBe(36);
   });
 });

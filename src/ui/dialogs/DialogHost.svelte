@@ -2,7 +2,6 @@
   import { ui } from '../web-ui.svelte';
   import AlertView from './AlertView.svelte';
   import CargoTransferView from './CargoTransferView.svelte';
-  import EncounterView from './EncounterView.svelte';
   import PromptView from './PromptView.svelte';
   import QuantityView from './QuantityView.svelte';
 </script>
@@ -16,7 +15,7 @@
   {:else if dialog.kind === 'quantity'}
     <QuantityView {dialog} {covered} />
   {:else if dialog.kind === 'encounter'}
-    <EncounterView {dialog} {covered} />
+    <!-- Shown by the travel view. -->
   {:else}
     <CargoTransferView {dialog} {covered} />
   {/if}

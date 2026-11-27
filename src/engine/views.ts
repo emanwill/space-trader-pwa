@@ -7,7 +7,8 @@ import { CrewMemberId, GadgetType, SpecialEventType } from './data/enums';
 import { Strings } from './data/strings';
 import { formatMoney, formatNumber, multiples, stringVars } from './format';
 import type { Game } from './game';
-import { idiv } from './math';
+import { idiv, toInt } from './math';
+import type { Ship } from './model/ship';
 import { SpecialEvent } from './model/special-event';
 
 // #region Quests (Form_ViewQuests.cs)
@@ -257,6 +258,62 @@ export function specialCargo(game: Game): string[] {
   if (game.canSuperWarp) cargo.push(Strings.SpecialCargoExperiment);
 
   return cargo;
+}
+
+// #endregion
+
+// #region Encounter pictures (Functions.PaintShipImage, FormEncounter.UpdateTribbles)
+
+/** Which of a ship's four pictures to draw. */
+export type ShipPicture = 'normal' | 'damaged' | 'shields' | 'shields-damaged';
+
+/** A vertical strip of a ship picture, in image pixels: columns `from` up to `to`. */
+export interface ShipPictureStrip {
+  picture: ShipPicture;
+  from: number;
+  to: number;
+}
+
+/**
+ * Functions.PaintShipImage: the ship is drawn in strips, damaged from the
+ * left as the hull weakens and shielded from the right while shields hold.
+ */
+export function shipPictureStrips(ship: Ship): ShipPictureStrip[] {
+  const { x, width } = Consts.ShipImageOffsets[ship.type]!;
+  const startDamage = x + width - idiv(ship.hull * width, ship.hullStrength);
+  const startShield =
+    x +
+    width +
+    2 -
+    (ship.shieldStrength > 0 ? idiv(ship.shieldCharge * (width + 4), ship.shieldStrength) : 0);
+  const strips: ShipPictureStrip[] = [];
+
+  if (startDamage > x) {
+    if (startShield > x)
+      strips.push({ picture: 'damaged', from: x, to: Math.min(startDamage, startShield) });
+
+    if (startShield < startDamage)
+      strips.push({ picture: 'shields-damaged', from: startShield, to: startDamage });
+  }
+
+  if (startShield > startDamage)
+    strips.push({ picture: 'normal', from: startDamage, to: startShield });
+
+  if (startShield < x + width + 2)
+    strips.push({ picture: 'shields', from: startShield, to: x + width + 2 });
+
+  return strips;
+}
+
+/** The number of tribble pictures on the encounter screen's 6 × 6 grid. */
+export const TribbleSpots = 36;
+
+/** FormEncounter.UpdateTribbles: how many tribble pictures to show. */
+export function tribblePictures(ship: Ship): number {
+  return Math.min(
+    TribbleSpots,
+    toInt(Math.sqrt(ship.tribbles / Math.ceil(Consts.MaxTribbles / Math.pow(TribbleSpots + 1, 2)))),
+  );
 }
 
 // #endregion

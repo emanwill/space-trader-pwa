@@ -2,11 +2,15 @@
   import { onMount } from 'svelte';
   import { GameSession } from '../app/session';
   import { IndexedDbStore, MemoryStore, requestPersistentStorage } from '../app/storage';
+  import GameOverScreen from './components/GameOverScreen.svelte';
+  import Toasts from './components/Toasts.svelte';
   import DialogHost from './dialogs/DialogHost.svelte';
   import GameShell from './screens/GameShell.svelte';
   import NewCommander from './screens/NewCommander.svelte';
   import Title from './screens/Title.svelte';
   import { app } from './state.svelte';
+  import TravelScreen from './travel/TravelScreen.svelte';
+  import { travel } from './travel.svelte';
   import { ui } from './web-ui.svelte';
 
   onMount(async () => {
@@ -49,7 +53,12 @@
   <GameShell />
 {/if}
 
+{#if travel.shown}
+  <TravelScreen />
+{/if}
 <DialogHost />
+<Toasts />
+<GameOverScreen />
 
 <style>
   .loading {

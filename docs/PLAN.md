@@ -361,9 +361,33 @@ One SVG map replaces the short-range and galactic charts.
 - Checked in headless Chrome at 360, 390, 1100 and 1366 pixels wide: new game, trading, warp
   with encounters, arrival, every tab, save, reload (resumes the autosave) and load.
 
-**Phase 6. Travel and encounters UI**
+**Phase 6. Travel and encounters UI** ✅ done
 
-- Encounter screen, combat log, plunder/jettison, tribbles, special-encounter art, game-over and retire flows
+- Alerts are sorted by a lookup table (`src/ui/alert-kinds.ts`): questions (more than one
+  button) are confirm sheets; refusals and routine results are notices (answered OK at once,
+  shown as a toast or in the trip log); the ending, score and high-score verdict are the
+  game-over page; everything else is a story card. Tests check that every question is a
+  confirm and every notice is a single-OK alert. Notices and stories are kept for the menu's
+  Messages list.
+- Travel view (`src/ui/travel/`): Warp and Jump start a trip; the full-screen view opens once
+  an encounter, story or question needs the player. It shows the route and progress (clicks),
+  the encounter, and a trip log of everything that happened (encounter text, notices, stories
+  and the answers to questions) instead of a chain of alerts, then waits for Continue. A trip
+  that needed nothing shows its notices as toasts ("uneventful trip").
+- Encounter panel (FormEncounter): both ships drawn in strips as `PaintShipImage` did (damaged
+  from the left as the hull weakens, shielded from the right; `shipPictureStrips` in
+  `views.ts`), hull and shield text, the encounter-type picture, the original's buttons, the
+  blinking continuous indicator with Stop, a toggle for continuous attack and flight (the
+  original's options), and tribble pictures (`tribblePictures`, as UpdateTribbles counted them;
+  tapping one squeaks). The last round stays on screen while the engine acts on a choice.
+- Plunder and jettison sheets list only the goods present, with Take/Dump (quantity picker) and
+  All; Jettison opens from Plunder, as in the original.
+- Game over: one page with the ending art (killed, retired, moon), the score and the high-score
+  verdict, then the title screen. Retire from the menu goes through the same page.
+- `session.jump` takes an `onDeparture` hook, so a declined jump doesn't open the travel view.
+- Checked in headless Chrome at 390 and 1366 px: about 100 encounters across seeded runs on
+  Impossible, attacking police (confirm), death, retiring, the high score table, plunder,
+  jettison, tribbles and continuous attack.
 
 **Phase 7. Remaining features**
 
