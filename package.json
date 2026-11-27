@@ -1,21 +1,36 @@
 {
   "name": "space-trader-pwa",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "version": "0.1.0",
+  "private": true,
+  "description": "A progressive web app port of Space Trader for Windows 2.00",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/emanwill/space-trader-pwa.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/emanwill/space-trader-pwa/issues"
+  "homepage": "https://emanwill.github.io/space-trader-pwa/",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "assets": "node scripts/convert-assets.mjs"
   },
-  "homepage": "https://github.com/emanwill/space-trader-pwa#readme"
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@tsconfig/svelte": "^5.0.9",
+    "prettier": "^3.10.1",
+    "prettier-plugin-svelte": "^4.2.0",
+    "svelte": "^5.59.2",
+    "svelte-check": "^4.7.8",
+    "typescript": "^6.0.3",
+    "vite": "^8.4.0",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.2"
+  }
 }

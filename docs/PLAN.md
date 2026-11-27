@@ -11,20 +11,20 @@ Goal: carry the game logic over faithfully and redesign the UI for desktop and m
 
 ### Logic and data (port these)
 
-| File | Lines | Notes |
-|---|---|---|
-| `Game.cs` | 4429 | Core: universe generation, prices, travel, encounters, combat, special events, quests, news, serialization |
-| `Ship.cs` | 1353 | Cargo, equipment, crew, damage, tribbles, trade-in value |
-| `Strings.cs` | 1273 | All text: alert titles and messages, news, names. Uses `^1`/`^2` placeholders |
-| `Enums.cs` | 881 | All enums (AlertType has about 188 members) |
-| `ShipSpec.cs`, `ShipTemplate.cs`, `Shipyard.cs` | ~1150 | Ship stats, plus the 2.0 "design your own ship" feature |
-| `StarSystem.cs`, `PoliticalSystem.cs`, `TradeItem.cs` | ~930 | Systems, governments, trade goods |
-| `Commander.cs`, `CrewMember.cs` | ~675 | Player, skills, bank, insurance |
-| `Consts.cs` | 397 | Static data tables and tuning constants |
-| `Functions.cs` | 361 | RNG, distance, formatting, file I/O |
-| `Equipment.cs`, `Weapon.cs`, `Shield.cs`, `Gadget.cs` | ~585 | Equipment hierarchy |
-| `SpecialEvent.cs`, `GameOptions.cs`, `HighScoreRecord.cs`, `PoliceRecord.cs`, `Reputation.cs` | ~880 | Supporting models |
-| `STSerializableObject.cs` | 161 | Hashtable-based serialization (becomes JSON) |
+| File                                                                                          | Lines | Notes                                                                                                      |
+| --------------------------------------------------------------------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------- |
+| `Game.cs`                                                                                     | 4429  | Core: universe generation, prices, travel, encounters, combat, special events, quests, news, serialization |
+| `Ship.cs`                                                                                     | 1353  | Cargo, equipment, crew, damage, tribbles, trade-in value                                                   |
+| `Strings.cs`                                                                                  | 1273  | All text: alert titles and messages, news, names. Uses `^1`/`^2` placeholders                              |
+| `Enums.cs`                                                                                    | 881   | All enums (AlertType has about 188 members)                                                                |
+| `ShipSpec.cs`, `ShipTemplate.cs`, `Shipyard.cs`                                               | ~1150 | Ship stats, plus the 2.0 "design your own ship" feature                                                    |
+| `StarSystem.cs`, `PoliticalSystem.cs`, `TradeItem.cs`                                         | ~930  | Systems, governments, trade goods                                                                          |
+| `Commander.cs`, `CrewMember.cs`                                                               | ~675  | Player, skills, bank, insurance                                                                            |
+| `Consts.cs`                                                                                   | 397   | Static data tables and tuning constants                                                                    |
+| `Functions.cs`                                                                                | 361   | RNG, distance, formatting, file I/O                                                                        |
+| `Equipment.cs`, `Weapon.cs`, `Shield.cs`, `Gadget.cs`                                         | ~585  | Equipment hierarchy                                                                                        |
+| `SpecialEvent.cs`, `GameOptions.cs`, `HighScoreRecord.cs`, `PoliceRecord.cs`, `Reputation.cs` | ~880  | Supporting models                                                                                          |
+| `STSerializableObject.cs`                                                                     | 161   | Hashtable-based serialization (becomes JSON)                                                               |
 
 ### UI (redesign, not copy)
 
@@ -41,12 +41,12 @@ The main window `Form_SpaceTrader.cs` (4079 lines) has seven fixed panels: Syste
 
 The logic layer calls the UI directly and waits for the answer:
 
-| File | `FormAlert.Alert` calls | Branch on the answer | `ShowDialog` calls |
-|---|---|---|---|
-| Game.cs | 149 | ≥16 | 6 (quantity pickers, plunder, jettison, **the encounter screen inside the travel loop**) |
-| Commander.cs | 12 | 0 | 0 |
-| Functions.cs | 4 | 0 | 0 |
-| Form_SpaceTrader.cs | 21 | 6 | 22 |
+| File                | `FormAlert.Alert` calls | Branch on the answer | `ShowDialog` calls                                                                       |
+| ------------------- | ----------------------- | -------------------- | ---------------------------------------------------------------------------------------- |
+| Game.cs             | 149                     | ≥16                  | 6 (quantity pickers, plunder, jettison, **the encounter screen inside the travel loop**) |
+| Commander.cs        | 12                      | 0                    | 0                                                                                        |
+| Functions.cs        | 4                       | 0                    | 0                                                                                        |
+| Form_SpaceTrader.cs | 21                      | 6                    | 22                                                                                       |
 
 For example, `Game.Travel()` runs a 20-"click" loop. Each click may open `FormEncounter` modally, and the loop continues once it closes. `CargoBuy()` checks preconditions with alerts, opens a quantity dialog, then applies the result. `Warp()` asks yes/no questions halfway through.
 
@@ -57,8 +57,8 @@ Port the logic as TypeScript classes that take an injected interface:
 ```ts
 interface GameUI {
   alert(type: AlertType, ...args: string[]): Promise<AlertResult>; // Ok/Yes/No/Cancel
-  pickQuantity(req: QuantityRequest): Promise<number>;             // 0 = cancelled
-  encounter(): Promise<EncounterResult>;                           // resolves when the encounter ends
+  pickQuantity(req: QuantityRequest): Promise<number>; // 0 = cancelled
+  encounter(): Promise<EncounterResult>; // resolves when the encounter ends
   plunder(): Promise<void>;
   jettison(): Promise<void>;
 }
@@ -163,6 +163,7 @@ The loop is (1) compare prices, (2) buy cargo, (3) fly and handle encounters, (4
 ### 4.2 Map
 
 One SVG map replaces the short-range and galactic charts.
+
 - Pan and zoom by pinch, wheel, or drag.
 - Shows the fuel-range ring, wormhole links, the visited/unvisited distinction, and the tracked system.
 - Has a search field (replacing Find) and tap-to-select, with a target card showing government, tech level, police and pirate levels, distance, and estimated profit.
@@ -170,30 +171,31 @@ One SVG map replaces the short-range and galactic charts.
 
 ### Old surfaces and possible new homes
 
-| Original | Possible PWA treatment |
-|---|---|
-| Main window's seven panels | Persistent header (cash, bays, day, fuel, hull) plus tabbed sections on mobile or side-by-side panes on desktop |
-| Cargo panel + CargoBuy/CargoSell dialogs + Target System panel | Trade screen (§4.1) |
-| Short-Range + Galactic charts, Find, Track, Next/Prev | Map (§4.2) |
-| Dock: Fuel, Repair (BuyFuel/BuyRepairs) | Inline "fill up" / slider controls on a Services panel |
-| Equipment, ShipList, Escape Pod | Shipyard section with ship comparison cards and equipment buy/sell lists |
-| Shipyard design (Form_Shipyard, Costs) | **Deferred.** Port the `Shipyard` logic and data so saves stay compatible, but build no UI yet |
-| ViewBank, GetLoan, PayBackLoan | Bank panel with inline loan and insurance controls |
-| ViewPersonnel, Mercenaries | Crew panel |
-| ViewCommander, ViewShip, ViewQuests | Commander section: status, ship, quest log |
-| News, Special event button | Station section: newspaper and event card |
-| Warp + travel + Encounter dialog | Full-screen travel/encounter view: ship sprites with hull and shield, action bar, combat log in place of chained alerts, auto-attack/flee toggle |
-| Plunder, Jettison | Cargo-transfer sheet inside the encounter view |
-| FormAlert (188 types) | Sorted into notice (toast or log), story (narrative card), confirm (sheet), and game-over (screen) |
-| NewCommander | Onboarding screen (name, difficulty, skill-point allocation) |
-| Options, High Scores, About | Settings and menu pages |
-| Form_Test, Monster.com, cheat codes | Kept in production. Cheat codes are entered in map search, as the original did in Find. The debug panel is unlocked by a cheat, and using cheats marks the game for high scores as the original does |
+| Original                                                       | Possible PWA treatment                                                                                                                                                                               |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Main window's seven panels                                     | Persistent header (cash, bays, day, fuel, hull) plus tabbed sections on mobile or side-by-side panes on desktop                                                                                      |
+| Cargo panel + CargoBuy/CargoSell dialogs + Target System panel | Trade screen (§4.1)                                                                                                                                                                                  |
+| Short-Range + Galactic charts, Find, Track, Next/Prev          | Map (§4.2)                                                                                                                                                                                           |
+| Dock: Fuel, Repair (BuyFuel/BuyRepairs)                        | Inline "fill up" / slider controls on a Services panel                                                                                                                                               |
+| Equipment, ShipList, Escape Pod                                | Shipyard section with ship comparison cards and equipment buy/sell lists                                                                                                                             |
+| Shipyard design (Form_Shipyard, Costs)                         | **Deferred.** Port the `Shipyard` logic and data so saves stay compatible, but build no UI yet                                                                                                       |
+| ViewBank, GetLoan, PayBackLoan                                 | Bank panel with inline loan and insurance controls                                                                                                                                                   |
+| ViewPersonnel, Mercenaries                                     | Crew panel                                                                                                                                                                                           |
+| ViewCommander, ViewShip, ViewQuests                            | Commander section: status, ship, quest log                                                                                                                                                           |
+| News, Special event button                                     | Station section: newspaper and event card                                                                                                                                                            |
+| Warp + travel + Encounter dialog                               | Full-screen travel/encounter view: ship sprites with hull and shield, action bar, combat log in place of chained alerts, auto-attack/flee toggle                                                     |
+| Plunder, Jettison                                              | Cargo-transfer sheet inside the encounter view                                                                                                                                                       |
+| FormAlert (188 types)                                          | Sorted into notice (toast or log), story (narrative card), confirm (sheet), and game-over (screen)                                                                                                   |
+| NewCommander                                                   | Onboarding screen (name, difficulty, skill-point allocation)                                                                                                                                         |
+| Options, High Scores, About                                    | Settings and menu pages                                                                                                                                                                              |
+| Form_Test, Monster.com, cheat codes                            | Kept in production. Cheat codes are entered in map search, as the original did in Find. The debug panel is unlocked by a cheat, and using cheats marks the game for high scores as the original does |
 
 ---
 
 ## 5. Phased plan
 
-**Phase 0. Scaffold**
+**Phase 0. Scaffold** ✅ done
+
 - Vite, TS, Vitest, lint/format, and a PWA plugin stub
 - Set the license to GPL-2.0-or-later (package.json currently says ISC)
 - Asset conversion script, with converted PNGs committed
@@ -201,22 +203,27 @@ One SVG map replaces the short-range and galactic charts.
 - Add a short CLAUDE.md with conventions (integer division rule, engine/UI boundary)
 
 **Phase 1. Static data**
+
 - Enums, Consts, Strings, TradeItem, PoliticalSystem, ShipSpec tables, equipment tables
 - Mechanical, but long. Spot-check against the C#.
 
 **Phase 2. Engine models**
+
 - Ship, Commander, CrewMember, StarSystem, Equipment classes, plus serialization
 - Unit tests for derived values: trade-in price, free bays, skills, worth
 
 **Phase 3. Game engine**
+
 - Port `Game.cs` behind the `GameUI` interface, split into modules: universe generation, market, warp/travel, encounters/combat, special events/quests, news
 - A **headless test harness** with a scripted `GameUI` that auto-answers prompts. It can run whole seeded games end to end and check invariants (cash never NaN, cargo within capacity, quests progress).
 - This is the largest and riskiest phase. Work through it subsystem by subsystem with tests.
 
 **Phase 4. Persistence**
+
 - IndexedDB autosave, save slots, export/import, high scores, options
 
 **Phase 5. UI shell and docked gameplay**
+
 - Layout system and header
 - Trade screen and map first, then services, shipyard/equipment, bank, crew, commander/quests, news
 - Engine helpers the Trade screen needs: `estimatedSellPrice`, `maxBuyable`, `tripCosts`, `warpBlocker`
@@ -224,13 +231,16 @@ One SVG map replaces the short-range and galactic charts.
 - The playable loop of trade, warp, arrive should exist early, even before encounters have UI (resolve them automatically in the meantime)
 
 **Phase 6. Travel and encounters UI**
+
 - Encounter screen, combat log, plunder/jettison, tribbles, special-encounter art, game-over and retire flows
 
 **Phase 7. Remaining features**
+
 - New-commander flow polish, options, high scores, debug panel and cheats
 - The ship designer is deferred beyond this plan
 
 **Phase 8. PWA polish**
+
 - Install manifest and icons, offline check, update prompt
 - Touch targets, keyboard shortcuts on desktop, accessibility, dark/light themes
 - Device testing
@@ -249,6 +259,7 @@ One SVG map replaces the short-range and galactic charts.
 **What the app needs from a host:** very little. It's a static site: HTML, JS, CSS, PNGs, a manifest, and a service worker, probably under 1 MB in total. There's no server, database, or accounts. Saves, options, and high scores all stay on the device in IndexedDB.
 
 Requirements:
+
 1. **HTTPS.** Service workers, and therefore installing and offline play, only work over HTTPS (localhost is exempt for development). All the hosts below provide it automatically.
 2. **Static file serving** with correct MIME types, including `.webmanifest`.
 3. **Cache headers.** Ideally `sw.js` and `index.html` aren't cached for long, so updates reach players. Vite's hashed asset filenames handle everything else. If a host can't set headers, the PWA plugin's update check still works, just more slowly.
@@ -259,12 +270,12 @@ Not needed unless we add them later: a global online leaderboard or cloud saves 
 
 **Options:**
 
-| Host | Cost | Notes |
-|---|---|---|
-| GitHub Pages | Free | The repo is already on GitHub, and a GitHub Actions workflow can build and deploy it. Serves from a subpath unless you add a custom domain. Can't set custom headers (it uses about a 10-minute cache, which is acceptable) |
-| Cloudflare Pages | Free | Root domain (`*.pages.dev`), custom headers through a `_headers` file, preview deploys per branch |
-| Netlify / Vercel | Free tier | Similar to Cloudflare Pages |
-| Custom domain on any of the above | About the cost of the domain | Most portable choice. The origin survives a change of host, so saves survive too |
+| Host                              | Cost                         | Notes                                                                                                                                                                                                                       |
+| --------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GitHub Pages                      | Free                         | The repo is already on GitHub, and a GitHub Actions workflow can build and deploy it. Serves from a subpath unless you add a custom domain. Can't set custom headers (it uses about a 10-minute cache, which is acceptable) |
+| Cloudflare Pages                  | Free                         | Root domain (`*.pages.dev`), custom headers through a `_headers` file, preview deploys per branch                                                                                                                           |
+| Netlify / Vercel                  | Free tier                    | Similar to Cloudflare Pages                                                                                                                                                                                                 |
+| Custom domain on any of the above | About the cost of the domain | Most portable choice. The origin survives a change of host, so saves survive too                                                                                                                                            |
 
 **Recommendation:** GitHub Pages through Actions is the simplest start. Cloudflare Pages is the step up if header control matters. If the game might get a public URL you'd want to keep, put a custom domain in front from day one, because that protects players' saves if you ever change hosts.
 
@@ -272,13 +283,13 @@ Not needed unless we add them later: a global online leaderboard or cloud saves 
 
 ## 8. Decisions
 
-| Topic | Decision |
-|---|---|
-| UI framework | Svelte 5 + Vite (no strong preference from the owner) |
-| Rules fidelity | Quality-of-life changes allowed. The core trade loop is the priority (§4.1) |
-| Art | Keep the pixel-art look at integer scale |
-| Ship designer | Deferred. Logic and data are ported, but there's no UI |
-| Cheats / debug | Kept in production |
-| Map | One zoomable, scrollable map replaces both charts |
-| Trade screen | Destination is selected without leaving the product list: ◀ ▶/swipe cycling plus a collapsible mini-map (§4.1). No ranked "best runs" list for now |
-| Hosting | GitHub Pages through Actions for now (Vite `base: '/space-trader-pwa/'`). A permanent home, possibly a custom domain, will be decided before public release. Moving changes the origin, so test saves won't carry over without export/import |
+| Topic          | Decision                                                                                                                                                                                                                                     |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI framework   | Svelte 5 + Vite (no strong preference from the owner)                                                                                                                                                                                        |
+| Rules fidelity | Quality-of-life changes allowed. The core trade loop is the priority (§4.1)                                                                                                                                                                  |
+| Art            | Keep the pixel-art look at integer scale                                                                                                                                                                                                     |
+| Ship designer  | Deferred. Logic and data are ported, but there's no UI                                                                                                                                                                                       |
+| Cheats / debug | Kept in production                                                                                                                                                                                                                           |
+| Map            | One zoomable, scrollable map replaces both charts                                                                                                                                                                                            |
+| Trade screen   | Destination is selected without leaving the product list: ◀ ▶/swipe cycling plus a collapsible mini-map (§4.1). No ranked "best runs" list for now                                                                                           |
+| Hosting        | GitHub Pages through Actions for now (Vite `base: '/space-trader-pwa/'`). A permanent home, possibly a custom domain, will be decided before public release. Moving changes the origin, so test saves won't carry over without export/import |
