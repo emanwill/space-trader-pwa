@@ -6,28 +6,34 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-const entryPoints = [
-  'commander',
-  'crew-member',
-  'equipment',
-  'gadget',
-  'political-system',
-  'shield',
-  'ship',
-  'ship-spec',
-  'shipyard',
-  'special-event',
-  'star-system',
-  'trade-item',
-  'weapon',
-];
+// Each engine module that might be imported first, relative to src/engine/.
+// (Vite needs literal import paths here.)
+const entryPoints: Record<string, () => Promise<unknown>> = {
+  game: () => import('../../../src/engine/game'),
+  encounter: () => import('../../../src/engine/encounter'),
+  services: () => import('../../../src/engine/services'),
+  'model/commander': () => import('../../../src/engine/model/commander'),
+  'model/crew-member': () => import('../../../src/engine/model/crew-member'),
+  'model/equipment': () => import('../../../src/engine/model/equipment'),
+  'model/gadget': () => import('../../../src/engine/model/gadget'),
+  'model/game-options': () => import('../../../src/engine/model/game-options'),
+  'model/political-system': () => import('../../../src/engine/model/political-system'),
+  'model/shield': () => import('../../../src/engine/model/shield'),
+  'model/ship': () => import('../../../src/engine/model/ship'),
+  'model/ship-spec': () => import('../../../src/engine/model/ship-spec'),
+  'model/shipyard': () => import('../../../src/engine/model/shipyard'),
+  'model/special-event': () => import('../../../src/engine/model/special-event'),
+  'model/star-system': () => import('../../../src/engine/model/star-system'),
+  'model/trade-item': () => import('../../../src/engine/model/trade-item'),
+  'model/weapon': () => import('../../../src/engine/model/weapon'),
+};
 
 afterEach(() => vi.resetModules());
 
 describe('module import order', () => {
-  it.each(entryPoints)('works when model/%s is imported first', async (entry) => {
+  it.each(Object.keys(entryPoints))('works when %s is imported first', async (entry) => {
     vi.resetModules();
-    await import(`../../../src/engine/model/${entry}.ts`);
+    await entryPoints[entry]!();
 
     const { Consts } = await import('../../../src/engine/data/consts');
     const { ShipType, WeaponType } = await import('../../../src/engine/data/enums');
@@ -38,5 +44,11 @@ describe('module import order', () => {
     expect(Consts.ShipSpecs[ShipType.Gnat]).toBeInstanceOf(ShipSpec);
     expect(Consts.Weapons[WeaponType.PulseLaser]).toBeInstanceOf(Weapon);
     expect(useFakeGame().cmdr.ship.weapons[0]).toBeInstanceOf(Weapon);
+
+    const { Game } = await import('../../../src/engine/game');
+    const { ScriptedUI } = await import('../scripted-ui');
+    expect(Game.newGame('Test', 2, 5, 5, 5, 5, new ScriptedUI()).universe.length).toBeGreaterThan(
+      0,
+    );
   });
 });

@@ -4,9 +4,10 @@
 // so 33 times). Rather than threading a game parameter through every port, the
 // engine keeps one module-level current game, set by the Game class.
 //
-// GameContext lists only the members ported code needs so far. It grows as
-// later phases port more code, and is replaced by the real Game type once that
-// exists (Phase 3).
+// GameContext lists the Game members the model classes read. Game implements
+// it; the models depend on this interface rather than on Game, so their unit
+// tests can use a small FakeGame (tests/engine/fake-game.ts) instead of a
+// whole generated universe. Widen it when a model needs another member.
 
 import type { Difficulty } from './data/enums';
 import type { Commander } from './model/commander';

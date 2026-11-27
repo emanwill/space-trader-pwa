@@ -42,8 +42,8 @@ export function randomSkill(): number {
  * wormhole from a to anywhere".
  */
 export function wormholeExists(a: number, b: number): boolean;
-export function wormholeExists(a: StarSystem, b: StarSystem): boolean;
-export function wormholeExists(a: number | StarSystem, b: number | StarSystem): boolean {
+export function wormholeExists(a: StarSystem, b: StarSystem | null): boolean;
+export function wormholeExists(a: number | StarSystem, b: number | StarSystem | null): boolean {
   const game = currentGame();
   const wormholes = game.wormholes;
 

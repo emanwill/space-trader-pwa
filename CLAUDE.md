@@ -11,7 +11,12 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
   - `data/` — static data: `consts.ts` (hand-ported) and `enums.ts`, `strings.ts`, `alerts.ts`
     (**generated** by `scripts/convert-data.mjs` via `npm run data`; never edit by hand).
   - `model/` — ported classes (one file per C# class, kebab-case names).
-  - `game-context.ts` — `currentGame()`, the replacement for the static `Game.CurrentGame`.
+  - `game.ts` — the `Game` class, ported line by line from `Game.cs` (same member order).
+  - `encounter.ts` — the encounter loop, ported from the logic in `Form_Encounter.cs`.
+  - `services.ts` — docked actions ported from the dialogs and main window (fuel, bank, equipment,
+    shipyard, crew, special event button, jump, retire). Each names the handler it came from.
+  - `game-context.ts` — `currentGame()`, the replacement for the static `Game.CurrentGame`, and
+    `GameContext`, the slice of `Game` the models read.
   - `game-ui.ts` — the `GameUI` interface: everything the original did with dialogs.
   - `rng.ts` — random numbers (`getRandom`, the seeded `getRandom2`); `functions.ts` — the other
     game-logic helpers from `Functions.cs` (`distance`, `wormholeExists`, ...).
@@ -19,8 +24,12 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
 - `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`).
   - `tests/engine/fake-game.ts` — `useFakeGame()` installs a `FakeGame` (a `GameContext` with a
     real commander, ship, systems and mercenaries) and a seeded RNG.
-  - `tests/engine/scripted-ui.ts` — `ScriptedUI`, a `GameUI` that records alerts and answers
-    questions from a script.
+  - `tests/engine/scripted-ui.ts` — `ScriptedUI`, a `GameUI` that records alerts and dialogs and
+    answers from a script (alert answers, quantities, encounter choices, plunder callbacks).
+  - `tests/engine/game-helpers.ts` — `newGame()` for tests with a real seeded `Game`, plus
+    `useGameCleanup()`, `reload()`, `moveTo()`.
+  - `tests/engine/harness.ts` — the headless harness: a bot that plays whole seeded games and
+    checks invariants after every step (`harness.test.ts` runs it).
 - `public/images/`, `public/icons/` — PNGs generated from `reference/` by `scripts/convert-assets.mjs`.
   Committed; regenerate with `npm run assets` (needs ImageMagick) only when changing the script.
 
@@ -55,14 +64,17 @@ and deploys `main` to GitHub Pages.
   - The static tables keep their original PascalCase names: `Consts.MaxRange`, `Consts.ShipSpecs`,
     `Strings.TradeItemNames`, `SpecialEvent.StatusJarekDone`.
 - **`Game.CurrentGame`** → `currentGame()` from `src/engine/game-context.ts`, and
-  `Game.CurrentGame.Commander` → `currentCommander()` (throws if unset). Its `GameContext`
-  interface lists only what ported code uses so far; widen it as needed until the real `Game` exists.
+  `Game.CurrentGame.Commander` → `currentCommander()` (throws if unset). Models see the game
+  through the `GameContext` interface (which `Game` implements); widen it when a model needs more.
 - **Circular imports:** `Consts` tables are lazy getters because they construct model classes that
   read `Consts`. Never read `Consts` tables (or construct model objects) at module top level.
 - **Overloads:** C# overloads that TS can't tell apart (constructors taking different enums or a
   `Hashtable`, `RemoveEquipment(type, slot)` vs `(type, object)`) become static factories
   (`Ship.forOpponent`, `X.fromHash`) or get a distinct name, with a `// PORT:` note.
-- **Dialog owners:** a C# `IWin32Window owner` parameter becomes a `ui: GameUI` parameter.
+- **Dialog owners:** a C# `IWin32Window owner` parameter becomes a `ui: GameUI` parameter. In
+  `Game` itself, owner parameters are dropped and alerts go to `this.ui` (the `ParentWindow`).
+- **Logic in forms:** game logic found in a WinForms dialog goes into the engine (`encounter.ts`,
+  `services.ts`), not the UI. Quantity pickers become amount parameters the UI supplies.
 - **Save data:** classes keep the original `Serialize()` keys (`_price`, `_type`, ...) in a plain
   `Hash` object; load with a static `fromHash` (or a protected `loadFromHash` for base classes).
 
