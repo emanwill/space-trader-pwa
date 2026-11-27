@@ -612,7 +612,16 @@ export class Game implements GameContext {
     this.recalculateBuyPrices(system);
   }
 
-  private async cargoBuy(tradeItem: number, max: boolean, op: CargoBuyOp): Promise<void> {
+  // PORT: `amount` is new. When given (and `max` is false), it replaces the
+  // quantity the FormCargoBuy/FormCargoSell dialog would have asked for, so a
+  // UI with its own quantity controls can skip the dialog. It is clamped to
+  // the same limits.
+  private async cargoBuy(
+    tradeItem: number,
+    max: boolean,
+    op: CargoBuyOp,
+    amount?: number,
+  ): Promise<void> {
     const cmdr = this.commander;
     let freeBays = cmdr.ship.freeCargoBays;
     let items: number[] = [];
@@ -671,13 +680,14 @@ export class Game implements GameContext {
           0,
           Math.min(
             maxAmount,
-            await this.ui.cargoQuantity({
-              kind: 'buy',
-              op,
-              tradeItem,
-              max: maxAmount,
-              unitPrice,
-            }),
+            amount ??
+              (await this.ui.cargoQuantity({
+                kind: 'buy',
+                op,
+                tradeItem,
+                max: maxAmount,
+                unitPrice,
+              })),
           ),
         );
 
@@ -692,8 +702,8 @@ export class Game implements GameContext {
     }
   }
 
-  async cargoBuySystem(tradeItem: number, max: boolean): Promise<void> {
-    await this.cargoBuy(tradeItem, max, CargoBuyOp.BuySystem);
+  async cargoBuySystem(tradeItem: number, max: boolean, amount?: number): Promise<void> {
+    await this.cargoBuy(tradeItem, max, CargoBuyOp.BuySystem, amount);
   }
 
   async cargoBuyTrader(tradeItem: number): Promise<void> {
@@ -704,19 +714,25 @@ export class Game implements GameContext {
     await this.cargoBuy(tradeItem, max, CargoBuyOp.Plunder);
   }
 
-  async cargoDump(tradeItem: number): Promise<void> {
-    await this.cargoSell(tradeItem, false, CargoSellOp.Dump);
+  async cargoDump(tradeItem: number, amount?: number): Promise<void> {
+    await this.cargoSell(tradeItem, false, CargoSellOp.Dump, amount);
   }
 
   async cargoJettison(tradeItem: number, all: boolean): Promise<void> {
     await this.cargoSell(tradeItem, all, CargoSellOp.Jettison);
   }
 
-  async cargoSellSystem(tradeItem: number, all: boolean): Promise<void> {
-    await this.cargoSell(tradeItem, all, CargoSellOp.SellSystem);
+  async cargoSellSystem(tradeItem: number, all: boolean, amount?: number): Promise<void> {
+    await this.cargoSell(tradeItem, all, CargoSellOp.SellSystem, amount);
   }
 
-  private async cargoSell(tradeItem: number, all: boolean, op: CargoSellOp): Promise<void> {
+  // PORT: `amount` is new; see cargoBuy.
+  private async cargoSell(
+    tradeItem: number,
+    all: boolean,
+    op: CargoSellOp,
+    amount?: number,
+  ): Promise<void> {
     const cmdr = this.commander;
     const qtyInHand = cmdr.ship.cargo[tradeItem]!;
     let unitPrice: number;
@@ -771,13 +787,14 @@ export class Game implements GameContext {
             0,
             Math.min(
               maxAmount,
-              await this.ui.cargoQuantity({
-                kind: 'sell',
-                op,
-                tradeItem,
-                max: maxAmount,
-                unitPrice: price,
-              }),
+              amount ??
+                (await this.ui.cargoQuantity({
+                  kind: 'sell',
+                  op,
+                  tradeItem,
+                  max: maxAmount,
+                  unitPrice: price,
+                })),
             ),
           );
 

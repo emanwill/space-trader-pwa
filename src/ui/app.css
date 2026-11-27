@@ -1,9 +1,25 @@
 :root {
   --bg: #0b0e1a;
   --surface: #151a2e;
+  --surface-2: #1d2440;
+  --surface-3: #283157;
+  --border: #2c3558;
   --text: #e6e8f0;
   --text-dim: #9aa1b8;
+  --text-faint: #6b7392;
   --accent: #f2c94c;
+  --accent-text: #1a1400;
+  --good: #5fd38d;
+  --bad: #ff6b6b;
+  --warn: #ffb347;
+  --link: #7fb8ff;
+  --wormhole: #c58cff;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --gap: 0.75rem;
+  --header-h: 3.25rem;
+  --tabbar-h: 3.5rem;
+  --tap: 2.75rem;
 
   color-scheme: dark;
   font-family:
@@ -12,9 +28,12 @@
     'Segoe UI',
     Roboto,
     sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
   color: var(--text);
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 *,
@@ -26,13 +45,225 @@
 body {
   margin: 0;
   min-height: 100dvh;
-  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0)
-    env(safe-area-inset-left, 0);
   background: var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+}
+
+h3 {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+
+p {
+  margin: 0;
 }
 
 /* Original game art is low-resolution; always scale it by whole numbers with hard edges. */
 .pixel {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.dim {
+  color: var(--text-dim);
+}
+
+.faint {
+  color: var(--text-faint);
+}
+
+.good {
+  color: var(--good);
+}
+
+.bad {
+  color: var(--bad);
+}
+
+.warn {
+  color: var(--warn);
+}
+
+.pre-line {
+  white-space: pre-line;
+}
+
+/* Buttons */
+
+button,
+.button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: var(--tap);
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+button:hover:not(:disabled) {
+  background: var(--surface-3);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.button:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+button.primary:hover:not(:disabled) {
+  background: #ffd866;
+}
+
+button.danger {
+  border-color: #6b2b35;
+  color: var(--bad);
+}
+
+button.small {
+  min-height: 2.25rem;
+  padding: 0 0.7rem;
+  font-size: 0.9rem;
+}
+
+button.ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+button.link {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+input,
+select {
+  min-height: var(--tap);
+  padding: 0 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+input[type='range'] {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--accent);
+}
+
+/* Cards and key-value lists */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 1rem;
+  margin: 0;
+}
+
+.facts dt {
+  color: var(--text-dim);
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: var(--gap);
+  max-width: 60rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

@@ -22,12 +22,22 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
     game-logic helpers from `Functions.cs` (`distance`, `wormholeExists`, ...).
   - `high-scores.ts` — the high score table and the game-over flow (`GameEnd`), through a
     `HighScoreStore` interface.
+  - `trade.ts` — read-only helpers for the Trade screen (market rows, buy/sell limits, trip costs,
+    `warpBlocker`); `views.ts` — the text of the original's quest, ship and commander screens.
 - `src/app/` — between engine and UI, no Svelte: `storage.ts` (`KeyValueStore`: IndexedDB, plus
   `MemoryStore` for tests), `save-files.ts` (save records, export/import format) and `session.ts`
   (`GameSession`: new/load/save, autosave, game over, options defaults, high scores — the main
   window's lifecycle code). The UI runs game actions through `session.act(...)`, `warp()`,
   `jump()` and `retire()` so autosave and game over are handled in one place.
-- `src/ui/` — Svelte 5 components and the `GameUI` implementation.
+- `src/ui/` — Svelte 5 components.
+  - `state.svelte.ts` — `app`: the session, current screen and tab, and `version`, bumped after
+    every engine call. Run game actions through `app.run(game => ...)` (or `app.task` for other
+    session calls) and compute views in `$derived.by` from `app.game`, never from a cached game
+    reference, or they won't update.
+  - `web-ui.svelte.ts` — `ui`, the browser `GameUI` (a dialog stack rendered by
+    `dialogs/DialogHost.svelte`), plus `ui.message` and `ui.prompt` for the UI's own dialogs.
+  - `trade-plan.svelte.ts` — the Trade screen's pending order and the Trade/Warp actions.
+  - `screens/` (title, new commander, shell, the five tabs), `map/`, `dialogs/`, `components/`.
 - `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`, `tests/app/`).
   - `tests/engine/fake-game.ts` — `useFakeGame()` installs a `FakeGame` (a `GameContext` with a
     real commander, ship, systems and mercenaries) and a seeded RNG.
@@ -90,4 +100,7 @@ and deploys `main` to GitHub Pages.
 - Engine code must not import from `src/app/` or `src/ui/`; `src/app/` must not import from
   `src/ui/`. Browser storage APIs appear only in `src/app/storage.ts`.
 - Display original pixel art at integer scales with the `.pixel` class (`image-rendering: pixelated`).
+  Ships are 64×52, equipment 64×52, alert art 160×160; `src/ui/images.ts` maps the original's
+  image indices to files.
+- The UI must work from 360 px wide (phones) up; check both a phone and a desktop width.
 - Asset URLs must be built from `import.meta.env.BASE_URL` (the app is served from a subpath).

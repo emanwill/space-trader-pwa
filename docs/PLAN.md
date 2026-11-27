@@ -99,7 +99,7 @@ src/
     rng.ts, functions.ts, serialization.ts, format.ts, game-ui.ts, game-context.ts, game-end-error.ts
   app/        # Between engine and UI, no framework: storage (IndexedDB), save files,
               # GameSession (new/load/save/autosave/game over, from the main window)
-  ui/         # Framework components, GameUI implementation
+  ui/         # Svelte components, the app state bridge and the browser GameUI
   pwa/        # Manifest, service worker, icons
 assets/       # Converted PNGs (generated from reference/ by a script)
 scripts/      # convert-assets (ImageMagick BMP→PNG)
@@ -316,13 +316,50 @@ One SVG map replaces the short-range and galactic charts.
   the save succeeded. The original marked it saved even after a failed save.
 - Not wired to the app yet: Phase 5 opens an `IndexedDbStore` and a `GameSession` at startup.
 
-**Phase 5. UI shell and docked gameplay**
+**Phase 5. UI shell and docked gameplay** ✅ done
 
-- Layout system and header
-- Trade screen and map first, then services, shipyard/equipment, bank, crew, commander/quests, news
-- Engine helpers the Trade screen needs: `estimatedSellPrice`, `maxBuyable`, `tripCosts`, `warpBlocker`
-- The map component is built to render at two sizes: the full map and the mini-map
-- The playable loop of trade, warp, arrive should exist early, even before encounters have UI (resolve them automatically in the meantime)
+- Engine additions:
+  - `cargoBuySystem`, `cargoSellSystem` and `cargoDump` take an optional `amount`, which replaces
+    the quantity dialog (clamped to the same limits). Without it they still ask.
+  - `trade.ts`: `tradeRows` (UpdateCargo's numbers), `estimatedSellPrice`, `maxBuyable` (with a
+    plan delta), `maxSellable`, `maxDumpable`, `tripCosts`, `warpBlocker` (Warp's checks plus the
+    hidden-button cases) and `systemsInRange`. Tests check each against what the engine does.
+  - `views.ts`: the text of Form_ViewQuests, Form_ViewShip and Form_ViewCommander, and
+    `linkSystemNames` for the quest log's system links.
+  - `services.jump` takes a `beforeWarp` hook (the departure autosave point).
+- UI (`src/ui/`):
+  - `state.svelte.ts`: `app`, the bridge. Engine objects aren't reactive; every change goes through
+    `app.run`/`app.task` (busy guard, session autosave, game-over check), which bumps `version`.
+    Views compute from `app.game` in `$derived.by`, which depends on `version`.
+  - `web-ui.svelte.ts`: the browser `GameUI`. Every engine dialog goes on a stack that
+    `DialogHost` renders (dialogs nest: a quantity picker over the plunder screen).
+  - Title screen, new commander (FormNewCommander's rules: 1 to 10 per skill, 20 points), and the
+    game shell: header (system, day, cash, debt, bays, fuel, hull), menu (save, save as, load,
+    export, import, new game, high scores, retire), and five tabs: Trade, Map, Station, Shipyard,
+    Captain. At 64rem and wider the map is a permanent left pane and the other four are tabs.
+  - Trade (§4.1): mini-map, destination bar (◀ ▶ and swipe, the original's Prev/Next), market
+    rows (cards on phones, a table when the pane is 46rem or wider, by container query), and a
+    signed stepper per row: positive buys, negative sells. Max and All per row, Dump for goods
+    the system won't buy, Sell profitable. The footer shows bays and cash after the order, the
+    hold's estimated value at the target, trip costs and why a warp is blocked. Trade applies the
+    order (sells first); Warp applies it, then warps. The order is dropped when the day or
+    system changes.
+  - Map (§4.2): one SVG component, `full` (pan, pinch, wheel zoom, search, zoom buttons) and
+    `mini` (fixed on the current system). Fuel ring, wormhole links, visited and in-range
+    styles, target and tracked marks, the tracked-system arrow and distance. Tap selects a
+    system, or a wormhole's destination. The target card has Warp, Track and Jump.
+  - Station: system info, special event card (accept in place), newspaper, fuel and repairs,
+    bank (borrow, repay, insurance) and crew (hire, fire). Amounts use inline sliders.
+  - Shipyard: escape pod, ships with trade-in prices, equipment to buy and installed equipment to
+    sell. Captain: commander, ship, special cargo and the quest log with tappable system names.
+  - Interim until Phase 6: every alert is a modal dialog, and the encounter is a plain dialog
+    with the original's texts and buttons, both ships' hull and shields, and the
+    continuous-attack timer.
+- Behaviour fix (`// PORT:`): the quest log matched the Princess quest only at the exact
+  "rescued" status, so it showed nothing while she was aboard and its impatient line never
+  appeared. It now matches the whole range.
+- Checked in headless Chrome at 360, 390, 1100 and 1366 pixels wide: new game, trading, warp
+  with encounters, arrival, every tab, save, reload (resumes the autosave) and load.
 
 **Phase 6. Travel and encounters UI**
 
