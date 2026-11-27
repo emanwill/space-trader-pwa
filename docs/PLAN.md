@@ -95,7 +95,10 @@ src/
     game.ts   # Game class: a line-by-line port of Game.cs
     encounter.ts  # the encounter loop (logic from Form_Encounter.cs)
     services.ts   # docked actions (logic from the fuel, bank, equipment, shipyard... dialogs)
+    high-scores.ts  # high score table and the game-over flow (GameEnd)
     rng.ts, functions.ts, serialization.ts, format.ts, game-ui.ts, game-context.ts, game-end-error.ts
+  app/        # Between engine and UI, no framework: storage (IndexedDB), save files,
+              # GameSession (new/load/save/autosave/game over, from the main window)
   ui/         # Framework components, GameUI implementation
   pwa/        # Manifest, service worker, icons
 assets/       # Converted PNGs (generated from reference/ by a script)
@@ -279,9 +282,39 @@ One SVG map replaces the short-range and galactic charts.
     (boxed ints vs. boxed enums in .NET). Plain numbers fix this.
   - The littering warning flag is set by the engine (the original set it inside FormAlert).
 
-**Phase 4. Persistence**
+**Phase 4. Persistence** ✅ done
 
-- IndexedDB autosave, save slots, export/import, high scores, options
+- `HighScoreRecord.cs` ported (`model/high-score-record.ts`). The table logic and the game-over
+  flow (`Functions.GetHighScores`, `AddHighScore`, `GameEnd`, the high score screen's lines) are
+  in `engine/high-scores.ts`, reading and writing through a `HighScoreStore` interface.
+  `ClearHighScores` existed but nothing called it; it's exposed (with its confirmation alert) so
+  the high score screen can offer it.
+- New `src/app/` layer (no framework; browser storage only behind an interface):
+  - `storage.ts`: a `KeyValueStore` with an IndexedDB implementation (writes resolve once
+    committed), an in-memory one for tests, and `requestPersistentStorage()`. Tests run the
+    IndexedDB store on `fake-indexeddb`.
+  - `save-files.ts`: a save record is the unchanged `Game.serialize()` hash (it carries
+    `_version`) plus a slot name, time and summary (commander, day, worth, system, ship) for
+    lists. Export files wrap it with `app` and `format` fields; import also takes a bare hash.
+  - `session.ts`: `GameSession`, the main window's game lifecycle: new game, load, save, save as,
+    retire, the `GameEndException` handling around actions, options and their defaults, and
+    high scores. The UI calls `session.act(...)`, `session.warp()`, `session.jump()` and
+    `session.retire()` rather than the engine directly, so autosave and game over happen in one
+    place.
+- Autosave: after every action and new game, and before and after each warp (the original's
+  departure/arrival points; a jump saves after the singularity is used). Opening the app resumes
+  the autosave. An interrupted trip resumes from its departure. Game over deletes the autosave
+  before the game-over alerts, so a finished game can't be resumed.
+- Saves are named slots; saving under an existing name replaces it (like overwriting a file).
+  Save without a slot returns false so the UI can ask for a name. The autosave remembers the
+  slot, so Save keeps working after a restart. The PlanB cheat's two autosave files are two
+  fixed slots.
+- A failed load (bad file, newer version, damaged game) shows `FileErrorOpen` and leaves the
+  previous game current; `Game.fromHash` had already replaced it and the commander's name.
+  A failed write shows `FileErrorSave`.
+- Behaviour fix (`// PORT:`): the "abandon your game?" check counts the game as saved only when
+  the save succeeded. The original marked it saved even after a failed save.
+- Not wired to the app yet: Phase 5 opens an `IndexedDbStore` and a `GameSession` at startup.
 
 **Phase 5. UI shell and docked gameplay**
 

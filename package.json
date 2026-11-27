@@ -26,6 +26,7 @@
     "@sveltejs/vite-plugin-svelte": "^7.3.2",
     "@tsconfig/svelte": "^5.0.9",
     "@types/node": "^24.19.4",
+    "fake-indexeddb": "^6.2.7",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.2.0",
     "svelte": "^5.59.2",

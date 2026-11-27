@@ -284,14 +284,16 @@ export async function acceptSpecialEvent(game: Game): Promise<void> {
 
 /**
  * btnJump_Click: jumps to the selected system with the Portable Singularity.
- * Returns true if the jump happened.
+ * Returns true if the jump happened. `beforeWarp` runs where the original
+ * made its departure autosave: after the singularity is used up.
  */
-export async function jump(game: Game): Promise<boolean> {
+export async function jump(game: Game, beforeWarp?: () => Promise<void>): Promise<boolean> {
   if (game.warpSystem === null) await game.ui.alert(AlertType.ChartJumpNoSystemSelected);
   else if (game.warpSystem === game.commander.currentSystem)
     await game.ui.alert(AlertType.ChartJumpCurrent);
   else if ((await game.ui.alert(AlertType.ChartJump, game.warpSystem.name)) === DialogResult.Yes) {
     game.canSuperWarp = false;
+    await beforeWarp?.();
     await game.warp(true);
     return true;
   }

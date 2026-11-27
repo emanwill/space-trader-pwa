@@ -20,8 +20,15 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
   - `game-ui.ts` — the `GameUI` interface: everything the original did with dialogs.
   - `rng.ts` — random numbers (`getRandom`, the seeded `getRandom2`); `functions.ts` — the other
     game-logic helpers from `Functions.cs` (`distance`, `wormholeExists`, ...).
+  - `high-scores.ts` — the high score table and the game-over flow (`GameEnd`), through a
+    `HighScoreStore` interface.
+- `src/app/` — between engine and UI, no Svelte: `storage.ts` (`KeyValueStore`: IndexedDB, plus
+  `MemoryStore` for tests), `save-files.ts` (save records, export/import format) and `session.ts`
+  (`GameSession`: new/load/save, autosave, game over, options defaults, high scores — the main
+  window's lifecycle code). The UI runs game actions through `session.act(...)`, `warp()`,
+  `jump()` and `retire()` so autosave and game over are handled in one place.
 - `src/ui/` — Svelte 5 components and the `GameUI` implementation.
-- `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`).
+- `tests/` — Vitest tests, mirroring `src/` (e.g. `tests/engine/math.test.ts`, `tests/app/`).
   - `tests/engine/fake-game.ts` — `useFakeGame()` installs a `FakeGame` (a `GameContext` with a
     real commander, ship, systems and mercenaries) and a seeded RNG.
   - `tests/engine/scripted-ui.ts` — `ScriptedUI`, a `GameUI` that records alerts and dialogs and
@@ -80,6 +87,7 @@ and deploys `main` to GitHub Pages.
 
 ## Conventions
 
-- Engine code must not import from `src/ui/`.
+- Engine code must not import from `src/app/` or `src/ui/`; `src/app/` must not import from
+  `src/ui/`. Browser storage APIs appear only in `src/app/storage.ts`.
 - Display original pixel art at integer scales with the `.pixel` class (`image-rendering: pixelated`).
 - Asset URLs must be built from `import.meta.env.BASE_URL` (the app is served from a subpath).

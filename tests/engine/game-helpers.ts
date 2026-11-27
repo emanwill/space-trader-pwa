@@ -5,6 +5,7 @@ import { CrewMemberId, Difficulty, StarSystemId } from '../../src/engine/data/en
 import { Strings } from '../../src/engine/data/strings';
 import { Game } from '../../src/engine/game';
 import { setCurrentGame } from '../../src/engine/game-context';
+import { setDefaultOptions } from '../../src/engine/model/game-options';
 import { seededRandomSource, setRandomSource } from '../../src/engine/rng';
 import type { StarSystem } from '../../src/engine/model/star-system';
 import { ScriptedUI, type ScriptedUIOptions } from './scripted-ui';
@@ -35,12 +36,13 @@ export function newGame(options: NewGameOptions = {}): { game: Game; ui: Scripte
   return { game, ui };
 }
 
-/** Clears the current game, the random source and the commander's name after each test. */
+/** Clears the current game, the random source, the commander's name and default options after each test. */
 export function useGameCleanup(): void {
   const originalName = Strings.CrewMemberNames[CrewMemberId.Commander]!;
   afterEach(() => {
     setCurrentGame(null);
     setRandomSource(Math.random);
+    setDefaultOptions(null);
     Strings.CrewMemberNames[CrewMemberId.Commander] = originalName;
   });
 }

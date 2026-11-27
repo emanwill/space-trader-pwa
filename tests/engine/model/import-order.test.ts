@@ -6,16 +6,19 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-// Each engine module that might be imported first, relative to src/engine/.
+// Each module that might be imported first, relative to src/engine/ (app/ is src/app/).
 // (Vite needs literal import paths here.)
 const entryPoints: Record<string, () => Promise<unknown>> = {
   game: () => import('../../../src/engine/game'),
   encounter: () => import('../../../src/engine/encounter'),
   services: () => import('../../../src/engine/services'),
+  'high-scores': () => import('../../../src/engine/high-scores'),
+  'app/session': () => import('../../../src/app/session'),
   'model/commander': () => import('../../../src/engine/model/commander'),
   'model/crew-member': () => import('../../../src/engine/model/crew-member'),
   'model/equipment': () => import('../../../src/engine/model/equipment'),
   'model/gadget': () => import('../../../src/engine/model/gadget'),
+  'model/high-score-record': () => import('../../../src/engine/model/high-score-record'),
   'model/game-options': () => import('../../../src/engine/model/game-options'),
   'model/political-system': () => import('../../../src/engine/model/political-system'),
   'model/shield': () => import('../../../src/engine/model/shield'),
