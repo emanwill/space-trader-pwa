@@ -14,7 +14,10 @@ export default defineConfig({
   plugins: [
     svelte(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // Ask before switching to a new version, so an update never reloads the
+      // game mid-trip (src/ui/pwa.svelte.ts shows the prompt).
+      registerType: 'prompt',
+      injectRegister: false,
       includeAssets: ['icons/favicon-32.png', 'icons/apple-touch-icon-180.png'],
       manifest: {
         name: 'Space Trader',
@@ -22,7 +25,11 @@ export default defineConfig({
         description: 'Trade goods, upgrade your ship and battle pirates across the galaxy.',
         theme_color: BACKGROUND,
         background_color: BACKGROUND,
+        id: BASE,
         display: 'standalone',
+        orientation: 'any',
+        categories: ['games'],
+        lang: 'en',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },

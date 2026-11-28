@@ -3,6 +3,7 @@
   import { Difficulty } from '../../engine/data/enums';
   import { Strings } from '../../engine/data/strings';
   import Stepper from '../components/Stepper.svelte';
+  import { overlayOpen } from '../keys.svelte';
   import { app } from '../state.svelte';
   import { imageUrl } from '../images';
 
@@ -51,7 +52,7 @@
   }
 </script>
 
-<main class="screen narrow">
+<main class="screen narrow" inert={overlayOpen()}>
   <header class="row">
     <img class="pixel" src={imageUrl('logo')} width="44" height="42" alt="" />
     <h1>New commander</h1>
@@ -66,7 +67,8 @@
   >
     <label class="stack field">
       <span class="dim">Name</span>
-      <input bind:value={name} maxlength="30" autocomplete="off" />
+      <!-- svelte-ignore a11y_autofocus -->
+      <input bind:value={name} maxlength="30" autocomplete="off" autofocus />
     </label>
 
     <label class="stack field">

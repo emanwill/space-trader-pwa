@@ -418,11 +418,35 @@ One SVG map replaces the short-range and galactic charts.
   a galaxy may have fewer than five. It only matters to the deferred ship designer.
 - The ship designer is deferred beyond this plan.
 
-**Phase 8. PWA polish**
+**Phase 8. PWA polish** ✅ done
 
-- Install manifest and icons, offline check, update prompt
-- Touch targets, keyboard shortcuts on desktop, accessibility, dark/light themes
-- Device testing
+- Updates: the service worker now waits (`registerType: 'prompt'`). A banner offers the new
+  version and holds Update back during a trip or action; the page reloads and the autosave
+  resumes the game. The app checks for a new version hourly while open, and says when it's ready
+  to play offline. Manifest gained `id`, `orientation`, `categories`; iOS web-app meta tags added.
+- Offline checked in Chrome: after one visit, with the network off, the app reloads, starts a
+  game and loads its pictures from the cache. The update prompt was checked by publishing a
+  changed build under an open page.
+- Themes: dark, light or system (Options → Display; per device, in `localStorage`). All colours
+  are tokens in `app.css`, including the map's; an inline script in `index.html` sets the theme
+  before the first paint.
+- Keyboard (`src/ui/keys.svelte.ts`, listed under ? and in the menu): 1–5 tabs, ← → or [ ] cycle
+  destinations, W warps, / finds; in encounters the action's letter (A, F, I, S, U, B, T, P,
+  O, M, D, Y, C) and Space to stop continuous attack, shown as hints on desktop. In dialogs Enter
+  takes the highlighted button and Escape cancels: sheets close, pickers cancel, questions answer
+  No or Cancel where they have one, single-button alerts answer Ok.
+- Accessibility: dialogs trap focus, focus themselves (or their autofocus button) and give focus
+  back when they close; the screens behind any dialog, sheet, trip or game-over page are
+  `inert`. Fainter text colours raised for contrast; a hidden page heading; labelled progress
+  bar; the new-commander name field takes focus. axe-core reports no violations on the title,
+  new commander, trade, station, captain, map, shipyard, encounter, menu and shortcut screens,
+  in both themes.
+- Touch: small buttons grow to 40 px on touch screens. Short screens (a phone held sideways)
+  start with the mini-map hidden and don't pin the trade footer; the map's search row wraps on
+  the narrowest phones.
+- Device sweep (Chrome emulation): iPhone SE, iPhone 15 Pro, Pixel 7, Galaxy Fold (280 px),
+  phone landscape, iPad portrait and landscape, 1280 and 1920 px desktops. No sideways scrolling
+  on any tab or the Options sheet, and no axe violations. Not tested on physical devices.
 
 ---
 

@@ -101,7 +101,7 @@
     width: 70%;
   }
   .scores li.mine {
-    background: rgb(242 201 76 / 0.15);
+    background: var(--accent-soft);
     color: var(--accent);
     font-weight: 700;
   }

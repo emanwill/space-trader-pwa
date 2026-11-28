@@ -7,7 +7,7 @@
   const messages = $derived([...ui.messages].reverse());
 </script>
 
-<Modal title="Messages">
+<Modal title="Messages" oncancel={onclose}>
   {#if messages.length === 0}
     <p class="dim">No messages yet.</p>
   {:else}

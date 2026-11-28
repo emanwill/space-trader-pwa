@@ -6,8 +6,13 @@
   import GameOverScreen from './components/GameOverScreen.svelte';
   import MonsterSheet from './components/MonsterSheet.svelte';
   import OptionsSheet from './components/OptionsSheet.svelte';
+  import KeysSheet from './components/KeysSheet.svelte';
   import TestPanel from './components/TestPanel.svelte';
+  import { onKeydown } from './keys.svelte';
   import Toasts from './components/Toasts.svelte';
+  import UpdateBanner from './components/UpdateBanner.svelte';
+  import { pwa } from './pwa.svelte';
+  import { theme } from './theme.svelte';
   import DialogHost from './dialogs/DialogHost.svelte';
   import GameShell from './screens/GameShell.svelte';
   import NewCommander from './screens/NewCommander.svelte';
@@ -18,6 +23,8 @@
   import { ui } from './web-ui.svelte';
 
   onMount(async () => {
+    pwa.start();
+    theme.apply();
     let store;
     try {
       store = await IndexedDbStore.open();
@@ -40,6 +47,8 @@
     }
   });
 </script>
+
+<svelte:window onkeydown={onKeydown} />
 
 {#if app.error}
   <main class="screen">
@@ -65,12 +74,15 @@
   <MonsterSheet onclose={() => (app.sheet = null)} />
 {:else if app.sheet === 'test'}
   <TestPanel onclose={() => (app.sheet = null)} />
+{:else if app.sheet === 'keys'}
+  <KeysSheet onclose={() => (app.sheet = null)} />
 {/if}
 {#if travel.shown}
   <TravelScreen />
 {/if}
 <DialogHost />
 <Toasts />
+<UpdateBanner />
 <GameOverScreen />
 
 <style>

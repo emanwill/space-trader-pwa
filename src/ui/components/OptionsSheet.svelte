@@ -6,6 +6,7 @@
   import { GameOptions } from '../../engine/model/game-options';
   import Modal from '../dialogs/Modal.svelte';
   import { app } from '../state.svelte';
+  import { theme, type ThemeChoice } from '../theme.svelte';
   import { ui } from '../web-ui.svelte';
 
   let { onclose }: { onclose: () => void } = $props();
@@ -63,7 +64,21 @@
     (o.leaveEmpty = Math.max(0, Math.min(99, Math.trunc(o.leaveEmpty || 0))));
 </script>
 
-<Modal title="Options" wide>
+<Modal title="Options" wide oncancel={onclose}>
+  <section class="group">
+    <h3>Display</h3>
+    <label class="number">
+      <select
+        value={theme.choice}
+        onchange={(e) => theme.set((e.currentTarget as HTMLSelectElement).value as ThemeChoice)}
+      >
+        <option value="system">System</option>
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+      Theme <span class="faint">(this device; applies at once)</span>
+    </label>
+  </section>
   <section class="group">
     <h3>Arrival</h3>
     <label>

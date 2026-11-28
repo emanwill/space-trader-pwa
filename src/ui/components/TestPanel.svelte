@@ -39,7 +39,7 @@
   }
 </script>
 
-<Modal title="Test">
+<Modal title="Test" oncancel={onclose}>
   <section class="stack">
     <h3>Alert</h3>
     <select bind:value={alertType} aria-label="Alert type">

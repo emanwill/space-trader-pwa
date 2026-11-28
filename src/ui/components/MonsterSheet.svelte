@@ -44,7 +44,7 @@
   ];
 </script>
 
-<Modal title="Monster.com" wide>
+<Modal title="Monster.com" wide oncancel={onclose}>
   {#if view}
     <h3>Mercenaries</h3>
     <div class="table-wrap">

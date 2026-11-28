@@ -33,7 +33,11 @@
   }
 </script>
 
-<Modal title={plunder ? 'Plunder' : 'Jettison cargo'} {covered}>
+<Modal
+  title={plunder ? 'Plunder' : 'Jettison cargo'}
+  {covered}
+  oncancel={() => (working ? undefined : dialog.resolve())}
+>
   <p class="dim">
     {plunder ? "The opponent's hold." : 'Your hold.'} Your bays:
     <span class="num">{view?.bays}</span>

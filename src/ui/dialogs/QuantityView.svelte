@@ -32,7 +32,7 @@
   const total = $derived(clamped * Math.abs(request.unitPrice));
 </script>
 
-<Modal title="{verb} {name}" {covered}>
+<Modal title="{verb} {name}" {covered} oncancel={() => dialog.resolve(0)}>
   <p class="dim">{limit}</p>
   <div class="row">
     <input

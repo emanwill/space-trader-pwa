@@ -6,6 +6,7 @@
   import { TribbleSpots, tribblePictures } from '../../engine/views';
   import ShipPicture from '../components/ShipPicture.svelte';
   import { imageUrl } from '../images';
+  import { ENCOUNTER_KEYS } from '../keys.svelte';
   import { app } from '../state.svelte';
   import type { EncounterView } from '../../engine/game-ui';
   import { ui, type EncounterDialog } from '../web-ui.svelte';
@@ -179,13 +180,14 @@
               disabled={!active || !dialog}
               onclick={() => dialog?.resolve(EncounterChoice.Int)}
             >
-              Stop
+              Stop <kbd>Space</kbd>
             </button>
           </div>
         {:else}
           {#each buttons as choice (choice)}
             <button disabled={!active || !dialog} onclick={() => dialog?.resolve(choice)}>
               {LABELS[choice]}
+              {#if ENCOUNTER_KEYS[choice]}<kbd>{ENCOUNTER_KEYS[choice]}</kbd>{/if}
             </button>
           {/each}
           {#if round.choices.includes(EncounterChoice.Close)}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Header from '../components/Header.svelte';
   import GameMenu from '../components/GameMenu.svelte';
+  import { overlayOpen } from '../keys.svelte';
   import { wide } from '../media.svelte';
   import { app, type Tab } from '../state.svelte';
   import CaptainScreen from './CaptainScreen.svelte';
@@ -23,7 +24,7 @@
   const tab = $derived(wide.matches && app.tab === 'map' ? 'trade' : app.tab);
 </script>
 
-<div class="shell" class:wide={wide.matches}>
+<div class="shell" class:wide={wide.matches} inert={menuOpen || overlayOpen()}>
   <Header onmenu={() => (menuOpen = true)} />
 
   {#if wide.matches}
@@ -53,6 +54,7 @@
         class:active={tab === t.id}
         aria-current={tab === t.id ? 'page' : undefined}
         onclick={() => (app.tab = t.id)}
+        title="{t.label} ({tabs.indexOf(t) + 1})"
       >
         <span class="icon" aria-hidden="true">{t.icon}</span>
         <span>{t.label}</span>

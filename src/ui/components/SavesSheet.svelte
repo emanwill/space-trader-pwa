@@ -17,7 +17,7 @@
     new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 </script>
 
-<Modal title="Load game" wide>
+<Modal title="Load game" wide oncancel={onclose}>
   {#if slots === null}
     <p class="dim">Loading…</p>
   {:else if slots.length === 0}

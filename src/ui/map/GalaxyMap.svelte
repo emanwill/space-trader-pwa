@@ -353,7 +353,7 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    background: radial-gradient(ellipse at center, #11162b 0%, var(--bg) 75%);
+    background: radial-gradient(ellipse at center, var(--map-glow) 0%, var(--map-bg) 75%);
     user-select: none;
   }
   .map.mini {
@@ -371,11 +371,11 @@
     cursor: grab;
   }
   .galaxy {
-    fill: rgb(255 255 255 / 0.015);
+    fill: var(--map-galaxy);
   }
   .range {
-    fill: rgb(242 201 76 / 0.06);
-    stroke: rgb(242 201 76 / 0.55);
+    fill: var(--map-range-fill);
+    stroke: var(--map-range);
   }
   .link {
     stroke: var(--wormhole);
@@ -385,11 +385,11 @@
     opacity: 1;
   }
   .arrow {
-    fill: crimson;
+    fill: var(--map-arrow);
   }
   .name {
     fill: var(--text-dim);
-    stroke: var(--bg);
+    stroke: var(--map-bg);
     paint-order: stroke;
     text-anchor: middle;
     pointer-events: none;
@@ -406,17 +406,17 @@
     font-weight: 700;
   }
   .system {
-    fill: var(--bg);
-    stroke: #5c6690;
+    fill: var(--map-bg);
+    stroke: var(--map-system);
   }
   .system.visited {
-    fill: #5c6690;
+    fill: var(--map-system);
   }
   .system.in-range {
-    stroke: #9cc4ff;
+    stroke: var(--map-system-near);
   }
   .system.in-range.visited {
-    fill: #9cc4ff;
+    fill: var(--map-system-near);
   }
   .here-ring {
     fill: none;
@@ -426,10 +426,10 @@
     stroke: var(--text);
   }
   .track-mark {
-    stroke: crimson;
+    stroke: var(--map-arrow);
   }
   .wormhole {
-    fill: var(--bg);
+    fill: var(--map-bg);
     stroke: var(--wormhole);
   }
   .wormhole.selected {

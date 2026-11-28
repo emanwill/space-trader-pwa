@@ -1,4 +1,5 @@
 :root {
+  /* Dark (the default). */
   --bg: #0b0e1a;
   --surface: #151a2e;
   --surface-2: #1d2440;
@@ -6,14 +7,26 @@
   --border: #2c3558;
   --text: #e6e8f0;
   --text-dim: #9aa1b8;
-  --text-faint: #6b7392;
+  --text-faint: #7a83a3;
   --accent: #f2c94c;
+  --accent-hover: #ffd866;
   --accent-text: #1a1400;
+  --accent-soft: rgb(242 201 76 / 0.08);
   --good: #5fd38d;
   --bad: #ff6b6b;
   --warn: #ffb347;
   --link: #7fb8ff;
   --wormhole: #c58cff;
+  --shadow: rgb(0 0 0 / 0.5);
+  --backdrop: rgb(4 6 14 / 0.7);
+  --map-bg: #0b0e1a;
+  --map-glow: #11162b;
+  --map-galaxy: rgb(255 255 255 / 0.015);
+  --map-system: #5c6690;
+  --map-system-near: #9cc4ff;
+  --map-range-fill: rgb(242 201 76 / 0.06);
+  --map-range: rgb(242 201 76 / 0.55);
+  --map-arrow: crimson;
   --radius: 10px;
   --radius-sm: 6px;
   --gap: 0.75rem;
@@ -34,6 +47,39 @@
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Light: chosen in Options, or by the system when the choice is "System". */
+:root[data-theme='light'] {
+  --bg: #f3f4f9;
+  --surface: #ffffff;
+  --surface-2: #eaecf5;
+  --surface-3: #dce0ee;
+  --border: #c9cfe2;
+  --text: #151a2c;
+  --text-dim: #4a5270;
+  --text-faint: #5f6786;
+  --accent: #8f6400;
+  --accent-hover: #a87700;
+  --accent-text: #ffffff;
+  --accent-soft: rgb(143 100 0 / 0.1);
+  --good: #17803f;
+  --bad: #c0262d;
+  --warn: #a65400;
+  --link: #1c58b5;
+  --wormhole: #7a3dc2;
+  --shadow: rgb(20 24 40 / 0.18);
+  --backdrop: rgb(20 24 40 / 0.45);
+  --map-bg: #e8ebf5;
+  --map-glow: #ffffff;
+  --map-galaxy: transparent;
+  --map-system: #8a93b5;
+  --map-system-near: #1c58b5;
+  --map-range-fill: rgb(143 100 0 / 0.08);
+  --map-range: rgb(143 100 0 / 0.6);
+  --map-arrow: #c0262d;
+
+  color-scheme: light;
 }
 
 *,
@@ -149,7 +195,7 @@ button.primary {
 }
 
 button.primary:hover:not(:disabled) {
-  background: #ffd866;
+  background: var(--accent-hover);
 }
 
 button.danger {
@@ -161,6 +207,29 @@ button.small {
   min-height: 2.25rem;
   padding: 0 0.7rem;
   font-size: 0.9rem;
+}
+
+/* Bigger targets for fingers. */
+@media (pointer: coarse) {
+  button.small {
+    min-height: 2.5rem;
+  }
+}
+
+/* Keyboard hints, shown only where there's a keyboard and a mouse. */
+kbd {
+  display: none;
+  padding: 0 0.3em;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-faint);
+  font: inherit;
+  font-size: 0.75em;
+}
+@media (hover: hover) and (pointer: fine) {
+  kbd {
+    display: inline-block;
+  }
 }
 
 button.ghost {

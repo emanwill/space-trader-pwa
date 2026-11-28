@@ -31,7 +31,7 @@
 {:else if sheet === 'messages'}
   <MessagesSheet onclose={() => (sheet = null)} />
 {:else}
-  <Modal title="Game">
+  <Modal title="Game" oncancel={onclose}>
     <p class="dim">
       {app.session?.saveSlotName
         ? `Saving to “${app.session.saveSlotName}”.`
@@ -48,6 +48,7 @@
       <button onclick={() => (sheet = 'messages')}>Messages</button>
       <button onclick={then(() => (app.sheet = 'options'))}>Options…</button>
       <button onclick={then(() => (app.sheet = 'about'))}>About</button>
+      <button onclick={then(() => (app.sheet = 'keys'))}>Keyboard shortcuts</button>
       {#if app.game?.cheatEnabled}
         <button onclick={then(() => (app.sheet = 'monster'))}>Monster.com</button>
         <button onclick={then(() => (app.sheet = 'test'))}>Test panel</button>

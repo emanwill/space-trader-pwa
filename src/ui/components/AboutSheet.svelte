@@ -7,7 +7,7 @@
   const source = 'https://github.com/emanwill/space-trader-pwa';
 </script>
 
-<Modal title="About Space Trader">
+<Modal title="About Space Trader" oncancel={onclose}>
   <div class="about">
     <img class="pixel" src={imageUrl('splash')} width="160" height="160" alt="" />
     <div class="stack">

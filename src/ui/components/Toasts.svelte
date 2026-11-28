@@ -34,7 +34,7 @@
     padding: 0.6rem 0.9rem;
     border-color: var(--link);
     background: var(--surface-2);
-    box-shadow: 0 6px 20px rgb(0 0 0 / 0.45);
+    box-shadow: 0 6px 20px var(--shadow);
     font-weight: 400;
     text-align: left;
     pointer-events: auto;

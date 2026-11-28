@@ -8,7 +8,7 @@
   let value = $state(dialog.value);
 </script>
 
-<Modal title={dialog.title} {covered}>
+<Modal title={dialog.title} {covered} oncancel={() => dialog.resolve(null)}>
   <form
     id="prompt-form"
     onsubmit={(e) => {

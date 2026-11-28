@@ -24,6 +24,7 @@
 </script>
 
 <header class="header">
+  <h1 class="sr-only">Space Trader</h1>
   {#if view}
     <div class="where">
       <strong class="system">{view.system}</strong>

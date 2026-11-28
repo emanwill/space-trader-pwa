@@ -43,6 +43,11 @@ The game logic is ported faithfully; the UI is redesigned for mobile and desktop
     the player loses nothing by missing it.
   - `app.sheet` opens the shared sheets (options, about, Monster.com, test panel) rendered by
     `App.svelte`.
+  - `keys.svelte.ts` — keyboard shortcuts and `overlayOpen()` (what makes the screens inert);
+    `theme.svelte.ts` — light/dark/system; `pwa.svelte.ts` — service worker and update prompt.
+  - Colours are tokens in `app.css` (dark on `:root`, light on `[data-theme='light']`); don't
+    hard-code colours in components. Dialogs go through `dialogs/Modal.svelte`, which handles
+    focus and Escape (`oncancel`).
   - `travel.svelte.ts` — the trip in progress and its log; `travel/` holds the travel view and
     the encounter panel.
   - `screens/` (title, new commander, shell, the five tabs), `map/`, `dialogs/`, `components/`

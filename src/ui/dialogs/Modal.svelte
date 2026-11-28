@@ -1,5 +1,7 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  // A dialog sheet. Keeps keyboard focus inside while it's on top, gives it
+  // back when it closes, and answers Escape with `oncancel`.
+  import { onMount, type Snippet } from 'svelte';
 
   interface Props {
     title?: string;
@@ -8,12 +10,74 @@
     wide?: boolean;
     /** A story card: an accent edge. */
     accent?: boolean;
+    /** What Escape does; omit if the dialog can't be dismissed. */
+    oncancel?: () => void;
     children: Snippet;
     actions?: Snippet;
   }
 
-  let { title, covered = false, wide = false, accent = false, children, actions }: Props = $props();
+  let {
+    title,
+    covered = false,
+    wide = false,
+    accent = false,
+    oncancel,
+    children,
+    actions,
+  }: Props = $props();
   const titleId = `dialog-title-${Math.random().toString(36).slice(2)}`;
+  let modal: HTMLElement | undefined = $state();
+
+  const FOCUSABLE =
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea, [tabindex]:not([tabindex="-1"])';
+
+  function focusables(): HTMLElement[] {
+    return modal ? [...modal.querySelectorAll<HTMLElement>(FOCUSABLE)] : [];
+  }
+
+  onMount(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    // Let autofocus win; otherwise focus the dialog itself, so screen readers
+    // read the title and Tab starts inside.
+    queueMicrotask(() => {
+      if (modal && !modal.contains(document.activeElement)) modal.focus();
+    });
+    return () => {
+      // After this frame: the screen behind may still be inert right now.
+      setTimeout(() => {
+        if (previous?.isConnected && !document.querySelector('.backdrop')) previous.focus();
+      });
+    };
+  });
+
+  // Back on top after a dialog over it closed: take focus again.
+  $effect(() => {
+    if (!covered && modal && !modal.contains(document.activeElement)) modal.focus();
+  });
+
+  function onkeydown(event: KeyboardEvent): void {
+    if (covered) return;
+    if (event.key === 'Escape' && oncancel) {
+      event.preventDefault();
+      event.stopPropagation();
+      oncancel();
+    } else if (event.key === 'Tab') {
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0]!;
+      const last = items.at(-1)!;
+      if (
+        event.shiftKey &&
+        (document.activeElement === first || document.activeElement === modal)
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  }
 </script>
 
 <div class="backdrop" class:covered>
@@ -24,6 +88,9 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby={title ? titleId : undefined}
+    tabindex="-1"
+    bind:this={modal}
+    {onkeydown}
   >
     {#if title}
       <h2 id={titleId}>{title}</h2>
@@ -49,7 +116,7 @@
     justify-content: center;
     padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) 0
       env(safe-area-inset-left, 0);
-    background: rgb(4 6 14 / 0.7);
+    background: var(--backdrop);
   }
   .backdrop.covered {
     visibility: hidden;
@@ -66,8 +133,11 @@
     border-bottom: 0;
     border-radius: var(--radius) var(--radius) 0 0;
     background: var(--surface);
-    box-shadow: 0 -8px 32px rgb(0 0 0 / 0.5);
+    box-shadow: 0 -8px 32px var(--shadow);
     animation: rise 0.16s ease-out;
+  }
+  .modal:focus {
+    outline: none;
   }
   .modal.accent {
     border-top: 3px solid var(--accent);

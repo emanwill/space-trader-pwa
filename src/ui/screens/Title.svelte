@@ -3,12 +3,13 @@
   import HighScoresSheet from '../components/HighScoresSheet.svelte';
   import SavesSheet from '../components/SavesSheet.svelte';
   import { imageUrl } from '../images';
+  import { overlayOpen } from '../keys.svelte';
   import { app } from '../state.svelte';
 
   let sheet = $state<'saves' | 'scores' | null>(null);
 </script>
 
-<main class="title">
+<main class="title" inert={sheet !== null || overlayOpen()}>
   <img class="pixel splash" src={imageUrl('splash')} width="320" height="320" alt="" />
   <h1>Space Trader</h1>
   <p class="dim">Trade goods, upgrade your ship and battle pirates across the galaxy.</p>

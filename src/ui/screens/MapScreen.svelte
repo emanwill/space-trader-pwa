@@ -97,11 +97,12 @@
   }
   .search {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.4rem;
     padding: 0.5rem;
     border-bottom: 1px solid var(--border);
   }
-  .search input {
+  .search input[type='search'] {
     flex: 1 1 8rem;
     min-width: 0;
     min-height: 2.25rem;

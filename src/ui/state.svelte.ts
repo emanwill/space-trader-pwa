@@ -13,7 +13,7 @@ import type { Game } from '../engine/game';
 export type Screen = 'loading' | 'title' | 'new-commander' | 'game';
 export type Tab = 'trade' | 'map' | 'station' | 'shipyard' | 'captain';
 /** Sheets that several places can open; App renders them. */
-export type Sheet = 'options' | 'about' | 'monster' | 'test';
+export type Sheet = 'options' | 'about' | 'monster' | 'test' | 'keys';
 
 class AppState {
   /** Bumped after every engine call; see the file comment. */

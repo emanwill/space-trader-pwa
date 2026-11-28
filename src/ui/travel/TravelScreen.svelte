@@ -42,7 +42,13 @@
   });
 </script>
 
-<div class="travel" role="dialog" aria-modal="true" aria-label="Travelling">
+<div
+  class="travel"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Travelling"
+  inert={ui.stack.some((d) => d.kind !== 'encounter') || ui.gameOver !== null}
+>
   <header class="route">
     <div class="names">
       <span>{travel.from}</span>
@@ -52,6 +58,7 @@
     <div
       class="bar"
       role="progressbar"
+      aria-label="Trip progress"
       aria-valuemin="0"
       aria-valuemax={Consts.StartClicks}
       aria-valuenow={Consts.StartClicks - clicksLeft}
@@ -91,7 +98,10 @@
 
   {#if travel.arrived}
     <footer class="done">
-      <button class="primary" onclick={() => travel.continue()}>Continue to {here}</button>
+      <!-- svelte-ignore a11y_autofocus -->
+      <button class="primary" autofocus onclick={() => travel.continue()}>
+        Continue to {here}
+      </button>
     </footer>
   {/if}
 </div>

@@ -17,7 +17,7 @@
   }
 </script>
 
-<Modal title="High scores">
+<Modal title="High scores" oncancel={onclose}>
   {#if lines === null}
     <p class="dim">Loading…</p>
   {:else if lines.length === 0}

@@ -12,7 +12,8 @@
   import { blockerText, systemFacts } from '../text';
   import { plan, planView, trade, warp } from '../trade-plan.svelte';
 
-  let showMap = $state(true);
+  // On short screens (a phone held sideways) the market needs the room.
+  let showMap = $state(typeof window === 'undefined' || window.innerHeight >= 560);
 
   const view = $derived.by(() => {
     const game = app.game;
@@ -383,7 +384,7 @@
     font-size: 0.92rem;
   }
   .item.ordered {
-    background: rgb(242 201 76 / 0.06);
+    background: var(--accent-soft);
   }
   .name {
     grid-area: name;
@@ -479,6 +480,13 @@
   :global(.shell.wide) .plan {
     bottom: 0;
   }
+  /* Too short to pin both the destination bar and the footer. */
+  @media (max-height: 34rem) {
+    .top,
+    .plan {
+      position: static;
+    }
+  }
   .totals {
     display: flex;
     flex-wrap: wrap;
@@ -489,6 +497,9 @@
   }
   .buttons {
     flex-wrap: nowrap;
+  }
+  .buttons button {
+    white-space: nowrap;
   }
   .warp {
     min-width: 0;
